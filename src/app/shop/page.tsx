@@ -7,7 +7,10 @@ export default function Shop() {
   const { data: session } = useSession(); 
   const router = useRouter(); 
 
-  // 🌟 নতুন স্টেটগুলো 🌟
+  // 🌟 অ্যাডমিন ইমেইল (শুধুমাত্র এই ইমেইল থেকে Add Product দেখা যাবে) 🌟
+  const adminEmail = "geminiaipro42@gmail.com";
+
+  // 🌟 স্টেটগুলো 🌟
   const [productsList, setProductsList] = useState([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   
@@ -49,19 +52,17 @@ export default function Shop() {
     setIsUploading(true);
 
     try {
-      // ১. Cloudinary-তে আপলোড
       const formData = new FormData();
       formData.append("file", imageFile);
-      formData.append("upload_preset", "meteorite_shop"); // ⚠️ Cloudinary Preset
+      formData.append("upload_preset", "meteorite_shop"); 
 
       const cloudRes = await fetch(
-        "https://api.cloudinary.com/v1_1/rgnyt2gl/image/upload", // ⚠️ তোর Cloud Name
+        "https://api.cloudinary.com/v1_1/rgnyt2gl/image/upload", 
         { method: "POST", body: formData }
       );
       const cloudData = await cloudRes.json();
       const imageUrl = cloudData.secure_url;
 
-      // ২. লিংকটা MongoDB-তে সেভ
       if (imageUrl) {
         const res = await fetch('/api/products', {
           method: 'POST',
@@ -76,7 +77,7 @@ export default function Shop() {
         if (res.ok) {
           setNewProductName(""); setNewProductPrice(""); setImageFile(null);
           setIsAddModalOpen(false);
-          fetchProducts(); // নতুন প্রোডাক্ট সাথে সাথে দেখার জন্য লিস্ট আপডেট
+          fetchProducts(); 
         }
       }
     } catch (error) {
@@ -125,15 +126,14 @@ export default function Shop() {
     <main className="flex flex-col items-center pt-32 px-4 text-center min-h-screen">
          <div className="backdrop-blur-md bg-white/5 p-6 md:p-10 rounded-3xl border border-white/10 max-w-5xl w-full shadow-2xl mt-10 mb-20 relative">
              
-             {/* 🌟 শপের টাইটেল এবং Add Product বাটন 🌟 */}
              <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
                <div className="text-left">
                  <h2 className="text-3xl md:text-4xl font-bold mb-2 text-purple-400">Meteorite Shop</h2>
                  <p className="text-sm md:text-base text-gray-300">Grab your exclusive space merch and astronomy gear.</p>
                </div>
                
-               {/* শুধু লগইন করা ইউজাররা (বা তুই) নতুন প্রোডাক্ট অ্যাড করতে পারবে */}
-               {session && (
+               {/* 🌟 সিকিউরিটি: শুধুমাত্র অ্যাডমিন ইমেইল থেকে লগইন করলেই বাটনটা দেখাবে 🌟 */}
+               {session?.user?.email === adminEmail && (
                  <button 
                    onClick={() => setIsAddModalOpen(true)}
                    className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-2.5 rounded-full font-bold transition-all shadow-[0_0_15px_rgba(34,211,238,0.3)]"
@@ -143,7 +143,6 @@ export default function Shop() {
                )}
              </div>
              
-             {/* 🌟 প্রোডাক্ট লিস্ট 🌟 */}
              <div className="flex flex-wrap justify-center gap-6">
                {productsList.length === 0 && <p className="text-gray-400">No products available yet. Add some!</p>}
                
@@ -180,7 +179,6 @@ export default function Shop() {
              </div>
          </div>
 
-         {/* 🌟 নতুন প্রোডাক্ট অ্যাড করার পপআপ (অ্যাডমিন/ইউজার) 🌟 */}
          {isAddModalOpen && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in">
                <div className="bg-[#050810]/90 border border-cyan-500/30 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-[0_0_40px_rgba(34,211,238,0.2)] relative text-left">
@@ -204,7 +202,6 @@ export default function Shop() {
             </div>
          )}
 
-         {/* 🌟 অর্ডারের পপআপ (আগের ডিজাইন হুবহু সেম) 🌟 */}
          {isModalOpen && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
                <div className="bg-[#050810]/90 border border-purple-500/30 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-[0_0_40px_rgba(168,85,247,0.2)] relative text-left">
