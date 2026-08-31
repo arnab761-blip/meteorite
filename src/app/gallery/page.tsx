@@ -10,7 +10,11 @@ export default function Gallery() {
   const [photos, setPhotos] = useState([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [image, setImage] = useState("");
+  
+  // 🌟 Cloudinary এর জন্য নতুন স্টেট 🌟
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState("");
+  
   const [isUploading, setIsUploading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<any>(null); // ফুল স্ক্রিন ছবির জন্য
@@ -26,8 +30,9 @@ export default function Gallery() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setImageFile(file); // মূল ফাইলটা সেভ রাখলাম Cloudinary-তে পাঠানোর জন্য
       const reader = new FileReader();
-      reader.onloadend = () => setImage(reader.result as string);
+      reader.onloadend = () => setImagePreview(reader.result as string); // শুধু প্রিভিউ দেখানোর জন্য Base64
       reader.readAsDataURL(file);
     }
   };
@@ -35,22 +40,41 @@ export default function Gallery() {
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session) return router.push("/login");
+    if (!imageFile) return alert("Please select a photo first!");
+    
     setIsUploading(true);
 
     try {
-      const res = await fetch('/api/gallery', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userName: session.user?.name,
-          userEmail: session.user?.email,
-          userImage: session.user?.image || "",
-          title, description, image
-        }),
-      });
-      if (res.ok) {
-        setTitle(""); setDescription(""); setImage(""); setShowForm(false);
-        fetchPhotos();
+      // 🚀 ১. প্রথমে Cloudinary-তে ছবি আপলোড 🚀
+      const formData = new FormData();
+      formData.append("file", imageFile);
+      formData.append("upload_preset", "meteorite_gallery"); // ⚠️ এখানে তোর Preset Name দে (যেমন: meteorite_gallery)
+
+      const cloudRes = await fetch(
+        "https://api.cloudinary.com/v1_1/rgnyt2gl/image/upload", // ⚠️ এখানে তোর Cloud Name দে
+        { method: "POST", body: formData }
+      );
+      const cloudData = await cloudRes.json();
+      const imageUrl = cloudData.secure_url; // Cloudinary থেকে পাওয়া পার্মানেন্ট লিংক
+
+      // 🚀 ২. লিংক পাওয়ার পর MongoDB-তে ডাটা সেভ 🚀
+      if (imageUrl) {
+        const res = await fetch('/api/gallery', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userName: session.user?.name,
+            userEmail: session.user?.email,
+            userImage: session.user?.image || "",
+            title, 
+            description, 
+            image: imageUrl // Base64 এর বদলে এখন Cloudinary এর লিংক যাবে!
+          }),
+        });
+        if (res.ok) {
+          setTitle(""); setDescription(""); setImageFile(null); setImagePreview(""); setShowForm(false);
+          fetchPhotos();
+        }
       }
     } catch (error) {
       console.log(error);
@@ -59,7 +83,6 @@ export default function Gallery() {
     }
   };
 
-  // 🌟 ছবিতে ক্লিক করলে ভিউ কাউন্ট হবে 🌟
   const handleViewPhoto = async (photo: any) => {
     setSelectedPhoto(photo);
     try {
@@ -68,7 +91,7 @@ export default function Gallery() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: photo._id }),
       });
-      fetchPhotos(); // ভিউ আপডেট করার জন্য ডাটা রিফ্রেশ
+      fetchPhotos(); 
     } catch (error) {
       console.log(error);
     }
@@ -96,7 +119,7 @@ export default function Gallery() {
             <input required type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Photo Title (e.g. Orion Nebula)" className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-cyan-500 focus:outline-none" />
             <textarea required value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Camera details, location, or description..." className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-cyan-500 focus:outline-none h-24 resize-none"></textarea>
             <input required type="file" accept="image/*" onChange={handleImageChange} className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-cyan-500/20 file:text-cyan-400 hover:file:bg-cyan-500/30 cursor-pointer" />
-            {image && <img src={image} alt="Preview" className="w-full h-48 object-cover rounded-lg border border-white/10" />}
+            {imagePreview && <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover rounded-lg border border-white/10" />}
             <button type="submit" disabled={isUploading} className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 py-3 rounded-lg font-bold text-white mt-2 transition-all">
               {isUploading ? "Uploading to Space..." : "Publish to Gallery"}
             </button>
@@ -112,7 +135,6 @@ export default function Gallery() {
             >
               <img src={photo.image} alt={photo.title} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
               
-              {/* 🌟 ছবির ওপরে ভিউ কাউন্টার 🌟 */}
               <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-cyan-400 flex items-center gap-1 border border-cyan-500/30">
                 👁️ {photo.views || 0}
               </div>
@@ -130,7 +152,6 @@ export default function Gallery() {
           ))}
         </div>
 
-        {/* 🌟 ফুল স্ক্রিন পপআপ 🌟 */}
         {selectedPhoto && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-sm p-4 animate-fade-in">
             <div className="relative max-w-4xl w-full bg-[#050810] border border-cyan-500/30 rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(34,211,238,0.2)] flex flex-col md:flex-row max-h-[90vh]">
