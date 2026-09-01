@@ -1,4 +1,5 @@
 import Link from "next/link";
+export const dynamic = "force-dynamic";
 
 // 🌟 রিয়েল-টাইম স্পেস নিউজ আনার ফাংশন (প্রতি রিফ্রেশে র‍্যান্ডম নিউজ আসবে) 🌟
 async function getSpaceNews() {
