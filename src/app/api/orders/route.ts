@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       },
     });
 
-    // কাস্টমারকে পাঠানোর মেইল টেমপ্লেট (HTML)
+    // কাস্টমারকে পাঠানোর মেইল টেমপ্লেট (HTML ও Plain Text সহ)
     const mailOptions = {
       from: `"Meteorite Official" <${process.env.EMAIL_USER}>`,
       to: userEmail,
@@ -61,6 +61,7 @@ export async function POST(req: Request) {
           </div>
         </div>
       `,
+      text: "Thank you for your order! Your space gear is preparing for launch.",
     };
 
     // ইমেইল সেন্ড করা

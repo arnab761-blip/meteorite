@@ -8,7 +8,7 @@ export default function Shop() {
   const router = useRouter(); 
 
   // 🌟 অ্যাডমিন ইমেইল (শুধুমাত্র এই ইমেইল থেকে Add Product দেখা যাবে) 🌟
-  const adminEmail = "geminiaipro42@gmail.com";
+  const adminEmail = "meteorite.official1@gmail.com";
 
   // 🌟 স্টেটগুলো 🌟
   const [productsList, setProductsList] = useState([]);
@@ -216,6 +216,9 @@ export default function Shop() {
                      <div className="text-center py-8">
                         <div className="text-6xl mb-4 animate-bounce">🚀</div>
                         <h4 className="text-xl font-bold text-green-400 mb-2">Order Placed!</h4>
+                        <p className="text-xs text-gray-400 mt-2">
+                          Note: Please check your Spam/Promotions folder if you don't see the confirmation email in your Inbox.
+                        </p>
                      </div>
                   ) : (
                      <form onSubmit={handleOrderSubmit} className="flex flex-col gap-4">
