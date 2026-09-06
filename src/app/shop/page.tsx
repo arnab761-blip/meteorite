@@ -16,6 +16,7 @@ export default function Shop() {
   
   const [newProductName, setNewProductName] = useState("");
   const [newProductPrice, setNewProductPrice] = useState("");
+  const [newAffiliateLink, setNewAffiliateLink] = useState(""); // 🌟 নতুন স্টেট
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -28,7 +29,6 @@ export default function Shop() {
   const [selectedProduct, setSelectedProduct] = useState("");
   const [selectedPrice, setSelectedPrice] = useState(""); 
   
-  // 🌟 পেমেন্ট মেথড ও কপি স্টেট 🌟
   const [paymentMethod, setPaymentMethod] = useState("bkash");
   const [copied, setCopied] = useState(false);
 
@@ -78,12 +78,13 @@ export default function Shop() {
           body: JSON.stringify({ 
             name: newProductName, 
             price: newProductPrice, 
-            image: imageUrl 
+            image: imageUrl,
+            affiliateLink: newAffiliateLink // 🌟 ডাটাবেসে পাঠানো হচ্ছে
           }),
         });
 
         if (res.ok) {
-          setNewProductName(""); setNewProductPrice(""); setImageFile(null);
+          setNewProductName(""); setNewProductPrice(""); setNewAffiliateLink(""); setImageFile(null);
           setIsAddModalOpen(false);
           fetchProducts(); 
         }
@@ -169,8 +170,13 @@ export default function Shop() {
                     <h4 className="font-semibold text-lg">{product.name}</h4>
                     <p className="text-cyan-400 mt-1 font-bold text-lg">৳ {product.price}</p>
                     
+                    {/* 🌟 ডাইনামিক বাটন: অ্যাফিলিয়েট থাকলে সরাসরি লিংকে যাবে 🌟 */}
                     <button 
                       onClick={() => {
+                        if (product.affiliateLink) {
+                           window.open(product.affiliateLink, '_blank');
+                           return;
+                        }
                         if (!session) {
                           router.push("/login"); 
                           return;
@@ -179,9 +185,9 @@ export default function Shop() {
                         setSelectedPrice(product.price); 
                         setIsModalOpen(true);
                       }}
-                      className="mt-auto pt-5 w-full bg-purple-500 hover:bg-purple-600 py-2.5 rounded-lg font-bold text-sm transition-all shadow-lg text-center"
+                      className={`mt-auto pt-5 w-full py-2.5 rounded-lg font-bold text-sm transition-all shadow-lg text-center text-white ${product.affiliateLink ? 'bg-[#FF9900] hover:bg-[#E68A00]' : 'bg-purple-500 hover:bg-purple-600'}`}
                     >
-                      Buy Now
+                      {product.affiliateLink ? "Buy from Rokomari" : "Buy Now"}
                     </button>
                  </div>
                ))}
@@ -199,6 +205,9 @@ export default function Shop() {
                      <input required type="text" value={newProductName} onChange={(e) => setNewProductName(e.target.value)} placeholder="Product Name" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none" />
                      <input required type="number" value={newProductPrice} onChange={(e) => setNewProductPrice(e.target.value)} placeholder="Price" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none" />
                      
+                     {/* 🌟 নতুন অ্যাফিলিয়েট লিংক ফিল্ড 🌟 */}
+                     <input type="url" value={newAffiliateLink} onChange={(e) => setNewAffiliateLink(e.target.value)} placeholder="Affiliate Link (Optional)" className="w-full bg-black/50 border border-[#FF9900]/30 rounded-lg px-4 py-2.5 text-white focus:border-[#FF9900] focus:outline-none" />
+
                      <div className="bg-white/5 border border-white/10 rounded-lg p-3">
                        <p className="text-xs text-gray-400 mb-2">Upload Product Image:</p>
                        <input required type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] || null)} className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-cyan-500/20 file:text-cyan-400 hover:file:bg-cyan-500/30 cursor-pointer" />
@@ -212,7 +221,7 @@ export default function Shop() {
             </div>
          )}
 
-         {/* Checkout Modal */}
+         {/* Checkout Modal (অপরিবর্তিত) */}
          {isModalOpen && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
                <div className="bg-[#050810]/90 border border-purple-500/30 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-[0_0_40px_rgba(168,85,247,0.2)] relative text-left max-h-[90vh] overflow-y-auto custom-scrollbar">
@@ -240,7 +249,6 @@ export default function Shop() {
                         <div className="bg-[#0a0f1a] p-5 rounded-lg border border-gray-800">
                            <p className="text-xs text-gray-400 mb-3 text-center">Select Payment Method</p>
                            
-                           {/* 🌟 লোগো সহ বিকাশ ও রকেট বাটন 🌟 */}
                            <div className="flex gap-3 mb-5">
                               <button 
                                 type="button" 
@@ -261,7 +269,6 @@ export default function Shop() {
                               </button>
                            </div>
                            
-                           {/* 🌟 নম্বর ডিসপ্লে ও কপি বাটন 🌟 */}
                            <div className="flex items-center justify-center gap-3 mb-5 bg-black/40 py-3 rounded-lg border border-white/5">
                              <p className="text-sm">
                                Send Money to: <strong className={`text-lg tracking-wider ${paymentMethod === 'bkash' ? "text-[#E2136E]" : "text-[#8C3494]"}`}>
@@ -282,7 +289,6 @@ export default function Shop() {
                              </button>
                            </div>
                            
-                           {/* 🌟 TrxID ইনপুট এবং প্রফেশনাল ইন্সট্রাকশন 🌟 */}
                            <div className="text-left relative">
                              <p className="text-[11px] text-cyan-400/80 mb-2 font-medium px-1">
                                * You will get the transaction id after sending money. Copy that TrxID and paste it below.
