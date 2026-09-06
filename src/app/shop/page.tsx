@@ -247,7 +247,7 @@ export default function Shop() {
                                 onClick={() => { setPaymentMethod('bkash'); setCopied(false); }} 
                                 className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all border flex items-center justify-center gap-2 ${paymentMethod === 'bkash' ? 'bg-[#E2136E]/10 text-[#E2136E] border-[#E2136E]' : 'bg-transparent text-gray-500 border-gray-700 hover:border-gray-500'}`}
                               >
-                                <img src="https://play-lh.googleusercontent.com/sC-kI-Z3C12b-lI4lB-w884n2U67iF40d_OIKr9uCksu4L2Z-yN9Y1B4t5-bKqPj9k8=w240-h480-rw" alt="bKash" className="w-5 h-5 rounded-sm object-cover" />
+                                <img src="/bkash.png" alt="bKash" className="w-5 h-5 rounded-sm object-cover" />
                                 bKash
                               </button>
                               
@@ -256,7 +256,7 @@ export default function Shop() {
                                 onClick={() => { setPaymentMethod('rocket'); setCopied(false); }} 
                                 className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all border flex items-center justify-center gap-2 ${paymentMethod === 'rocket' ? 'bg-[#8C3494]/10 text-[#8C3494] border-[#8C3494]' : 'bg-transparent text-gray-500 border-gray-700 hover:border-gray-500'}`}
                               >
-                                <img src="https://play-lh.googleusercontent.com/1-qI-6f6XF12B26Z8P8D0G_V1wZ-7Zq91A7-z10-18D8C94G1q7_yB3g0Z0W_0-9ZQ=w240-h480-rw" alt="Rocket" className="w-5 h-5 rounded-sm object-cover" />
+                                <img src="/rocket.png" alt="Rocket" className="w-5 h-5 rounded-sm object-cover" />
                                 Rocket
                               </button>
                            </div>
