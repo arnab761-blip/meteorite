@@ -28,8 +28,11 @@ export default function Shop() {
   const [selectedProduct, setSelectedProduct] = useState("");
   const [selectedPrice, setSelectedPrice] = useState(""); 
   
-  // 🌟 পেমেন্ট মেথড স্টেট (ডিফল্ট বিকাশ) 🌟
+  // 🌟 পেমেন্ট মেথড ও কপি স্টেট 🌟
   const [paymentMethod, setPaymentMethod] = useState("bkash");
+  const [copied, setCopied] = useState(false);
+
+  const activeNumber = paymentMethod === 'bkash' ? '01780692994' : '017190223709';
 
   const fetchProducts = async () => {
     try {
@@ -44,6 +47,12 @@ export default function Shop() {
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  const handleCopyNumber = () => {
+    navigator.clipboard.writeText(activeNumber);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,7 +104,6 @@ export default function Shop() {
       return;
     }
 
-    // TrxID এর সাথে মেথড যুক্ত করে দেওয়া হলো যাতে অ্যাডমিন বুঝতে পারে
     const finalTrxId = `${paymentMethod.toUpperCase()} - ${trxId}`;
 
     try {
@@ -180,6 +188,7 @@ export default function Shop() {
              </div>
          </div>
 
+         {/* Add Product Modal */}
          {isAddModalOpen && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in">
                <div className="bg-[#050810]/90 border border-cyan-500/30 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-[0_0_40px_rgba(34,211,238,0.2)] relative text-left">
@@ -203,9 +212,10 @@ export default function Shop() {
             </div>
          )}
 
+         {/* Checkout Modal */}
          {isModalOpen && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-               <div className="bg-[#050810]/90 border border-purple-500/30 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-[0_0_40px_rgba(168,85,247,0.2)] relative text-left">
+               <div className="bg-[#050810]/90 border border-purple-500/30 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-[0_0_40px_rgba(168,85,247,0.2)] relative text-left max-h-[90vh] overflow-y-auto custom-scrollbar">
                   <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white rounded-full w-8 h-8 flex items-center justify-center">✕</button>
                   <h3 className="text-2xl font-bold text-purple-400 mb-1">Checkout</h3>
                   <p className="text-gray-300 text-sm mb-6 flex items-center gap-2">
@@ -227,37 +237,68 @@ export default function Shop() {
                         <input required type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-purple-500 focus:outline-none" placeholder="Phone Number" />
                         <textarea required value={address} onChange={(e) => setAddress(e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white h-20 resize-none focus:border-purple-500 focus:outline-none" placeholder="Delivery Address"></textarea>
                         
-                        <div className="bg-[#0a0f1a] p-4 rounded-lg border border-gray-800">
+                        <div className="bg-[#0a0f1a] p-5 rounded-lg border border-gray-800">
                            <p className="text-xs text-gray-400 mb-3 text-center">Select Payment Method</p>
                            
-                           {/* 🌟 বিকাশ ও রকেট বাটন 🌟 */}
-                           <div className="flex gap-3 mb-4">
+                           {/* 🌟 লোগো সহ বিকাশ ও রকেট বাটন 🌟 */}
+                           <div className="flex gap-3 mb-5">
                               <button 
                                 type="button" 
-                                onClick={() => setPaymentMethod('bkash')} 
-                                className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all border ${paymentMethod === 'bkash' ? 'bg-[#E2136E]/20 text-[#E2136E] border-[#E2136E]' : 'bg-transparent text-gray-500 border-gray-700 hover:border-gray-500'}`}
+                                onClick={() => { setPaymentMethod('bkash'); setCopied(false); }} 
+                                className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all border flex items-center justify-center gap-2 ${paymentMethod === 'bkash' ? 'bg-[#E2136E]/10 text-[#E2136E] border-[#E2136E]' : 'bg-transparent text-gray-500 border-gray-700 hover:border-gray-500'}`}
                               >
+                                <img src="https://play-lh.googleusercontent.com/sC-kI-Z3C12b-lI4lB-w884n2U67iF40d_OIKr9uCksu4L2Z-yN9Y1B4t5-bKqPj9k8=w240-h480-rw" alt="bKash" className="w-5 h-5 rounded-sm object-cover" />
                                 bKash
                               </button>
+                              
                               <button 
                                 type="button" 
-                                onClick={() => setPaymentMethod('rocket')} 
-                                className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all border ${paymentMethod === 'rocket' ? 'bg-[#8C3494]/20 text-[#8C3494] border-[#8C3494]' : 'bg-transparent text-gray-500 border-gray-700 hover:border-gray-500'}`}
+                                onClick={() => { setPaymentMethod('rocket'); setCopied(false); }} 
+                                className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all border flex items-center justify-center gap-2 ${paymentMethod === 'rocket' ? 'bg-[#8C3494]/10 text-[#8C3494] border-[#8C3494]' : 'bg-transparent text-gray-500 border-gray-700 hover:border-gray-500'}`}
                               >
+                                <img src="https://play-lh.googleusercontent.com/1-qI-6f6XF12B26Z8P8D0G_V1wZ-7Zq91A7-z10-18D8C94G1q7_yB3g0Z0W_0-9ZQ=w240-h480-rw" alt="Rocket" className="w-5 h-5 rounded-sm object-cover" />
                                 Rocket
                               </button>
                            </div>
                            
-                           <p className="text-sm text-center mb-4">
-                             Send Money to: <strong className={paymentMethod === 'bkash' ? "text-[#E2136E]" : "text-[#8C3494]"}>
-                               {paymentMethod === 'bkash' ? '01780692994' : '017190223709'}
-                             </strong>
-                           </p>
+                           {/* 🌟 নম্বর ডিসপ্লে ও কপি বাটন 🌟 */}
+                           <div className="flex items-center justify-center gap-3 mb-5 bg-black/40 py-3 rounded-lg border border-white/5">
+                             <p className="text-sm">
+                               Send Money to: <strong className={`text-lg tracking-wider ${paymentMethod === 'bkash' ? "text-[#E2136E]" : "text-[#8C3494]"}`}>
+                                 {activeNumber}
+                               </strong>
+                             </p>
+                             <button 
+                               type="button" 
+                               onClick={handleCopyNumber}
+                               className="p-1.5 rounded-md hover:bg-white/10 transition-colors text-gray-400 hover:text-white"
+                               title="Copy Number"
+                             >
+                               {copied ? (
+                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                               ) : (
+                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                               )}
+                             </button>
+                           </div>
                            
-                           <input required type="text" value={trxId} onChange={(e) => setTrxId(e.target.value)} className="w-full bg-black/50 border border-cyan-500/30 rounded-lg px-4 py-2.5 text-white focus:border-cyan-400 focus:outline-none text-center" placeholder="Enter Transaction ID" />
+                           {/* 🌟 TrxID ইনপুট এবং প্রফেশনাল ইন্সট্রাকশন 🌟 */}
+                           <div className="text-left relative">
+                             <p className="text-[11px] text-cyan-400/80 mb-2 font-medium px-1">
+                               * You will get the transaction id after sending money. Copy that TrxID and paste it below.
+                             </p>
+                             <input 
+                               required 
+                               type="text" 
+                               value={trxId} 
+                               onChange={(e) => setTrxId(e.target.value)} 
+                               className={`w-full bg-black/50 border rounded-lg px-4 py-3 text-white focus:outline-none font-mono text-center tracking-widest uppercase transition-colors ${paymentMethod === 'bkash' ? 'border-[#E2136E]/40 focus:border-[#E2136E]' : 'border-[#8C3494]/40 focus:border-[#8C3494]'}`} 
+                               placeholder="e.g. 8N7A6B5C4D" 
+                             />
+                           </div>
                         </div>
                         
-                        <button type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-purple-500 to-cyan-500 py-3 rounded-lg font-bold text-white mt-2">
+                        <button type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-purple-500 to-cyan-500 py-3.5 rounded-lg font-bold text-white mt-2 shadow-[0_0_15px_rgba(168,85,247,0.4)] hover:shadow-[0_0_25px_rgba(34,211,238,0.5)] transition-all">
                            {isLoading ? "Processing..." : "Confirm Order"}
                         </button>
                      </form>
