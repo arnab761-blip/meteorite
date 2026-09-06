@@ -8,7 +8,7 @@ export default function Shop() {
   const router = useRouter(); 
 
   // 🌟 অ্যাডমিন ইমেইল
-  const adminEmail = "meteorite.official1@gmail.com";
+  const adminEmail = "geminiaipro42@gmail.com";
 
   // 🌟 স্টেটগুলো 🌟
   const [productsList, setProductsList] = useState([]);
