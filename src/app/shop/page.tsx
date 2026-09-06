@@ -7,20 +7,18 @@ export default function Shop() {
   const { data: session } = useSession(); 
   const router = useRouter(); 
 
-  // 🌟 অ্যাডমিন ইমেইল (শুধুমাত্র এই ইমেইল থেকে Add Product দেখা যাবে) 🌟
-  const adminEmail = "geminiaipro42@gmail.com";
+  // 🌟 অ্যাডমিন ইমেইল
+  const adminEmail = "meteorite.official1@gmail.com";
 
   // 🌟 স্টেটগুলো 🌟
   const [productsList, setProductsList] = useState([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   
-  // নতুন প্রোডাক্ট অ্যাড করার স্টেট
   const [newProductName, setNewProductName] = useState("");
   const [newProductPrice, setNewProductPrice] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  // অর্ডার করার স্টেট
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -29,8 +27,10 @@ export default function Shop() {
   const [trxId, setTrxId] = useState("");
   const [selectedProduct, setSelectedProduct] = useState("");
   const [selectedPrice, setSelectedPrice] = useState(""); 
+  
+  // 🌟 পেমেন্ট মেথড স্টেট (ডিফল্ট বিকাশ) 🌟
+  const [paymentMethod, setPaymentMethod] = useState("bkash");
 
-  // 🌟 ডাটাবেস থেকে প্রোডাক্ট আনার ফাংশন 🌟
   const fetchProducts = async () => {
     try {
       const res = await fetch('/api/products');
@@ -45,7 +45,6 @@ export default function Shop() {
     fetchProducts();
   }, []);
 
-  // 🌟 Cloudinary তে আপলোড এবং ডাটাবেসে সেভ করার ফাংশন 🌟
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!imageFile) return alert("Please select a product image!");
@@ -87,7 +86,6 @@ export default function Shop() {
     }
   };
 
-  // 🌟 অর্ডার সাবমিট করার ফাংশন 🌟
   const handleOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); 
     setIsLoading(true);
@@ -97,6 +95,9 @@ export default function Shop() {
       return;
     }
 
+    // TrxID এর সাথে মেথড যুক্ত করে দেওয়া হলো যাতে অ্যাডমিন বুঝতে পারে
+    const finalTrxId = `${paymentMethod.toUpperCase()} - ${trxId}`;
+
     try {
       const res = await fetch('/api/orders', {
         method: 'POST',
@@ -104,7 +105,8 @@ export default function Shop() {
         body: JSON.stringify({ 
           userEmail: session?.user?.email || "Unknown User",
           name: session?.user?.name || "Explorer",
-          phone, address, trxId,
+          phone, address, 
+          trxId: finalTrxId,
           productName: selectedProduct,
           price: selectedPrice 
         }),
@@ -112,7 +114,7 @@ export default function Shop() {
 
       if (res.ok) {
         setIsSubmitted(true);
-        setPhone(""); setAddress(""); setTrxId("");
+        setPhone(""); setAddress(""); setTrxId(""); setPaymentMethod("bkash");
         setTimeout(() => { setIsModalOpen(false); setIsSubmitted(false); }, 3000);
       }
     } catch (error) {
@@ -132,7 +134,6 @@ export default function Shop() {
                  <p className="text-sm md:text-base text-gray-300">Grab your exclusive space merch and astronomy gear.</p>
                </div>
                
-               {/* 🌟 সিকিউরিটি: শুধুমাত্র অ্যাডমিন ইমেইল থেকে লগইন করলেই বাটনটা দেখাবে 🌟 */}
                {session?.user?.email === adminEmail && (
                  <button 
                    onClick={() => setIsAddModalOpen(true)}
@@ -186,8 +187,8 @@ export default function Shop() {
                   <h3 className="text-2xl font-bold text-cyan-400 mb-6">Add New Product</h3>
                   
                   <form onSubmit={handleAddProduct} className="flex flex-col gap-4">
-                     <input required type="text" value={newProductName} onChange={(e) => setNewProductName(e.target.value)} placeholder="Product Name (e.g. Galaxy Hoodie)" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none" />
-                     <input required type="number" value={newProductPrice} onChange={(e) => setNewProductPrice(e.target.value)} placeholder="Price (e.g. 1200)" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none" />
+                     <input required type="text" value={newProductName} onChange={(e) => setNewProductName(e.target.value)} placeholder="Product Name" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none" />
+                     <input required type="number" value={newProductPrice} onChange={(e) => setNewProductPrice(e.target.value)} placeholder="Price" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none" />
                      
                      <div className="bg-white/5 border border-white/10 rounded-lg p-3">
                        <p className="text-xs text-gray-400 mb-2">Upload Product Image:</p>
@@ -226,10 +227,36 @@ export default function Shop() {
                         <input required type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-purple-500 focus:outline-none" placeholder="Phone Number" />
                         <textarea required value={address} onChange={(e) => setAddress(e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white h-20 resize-none focus:border-purple-500 focus:outline-none" placeholder="Delivery Address"></textarea>
                         
-                        <div className="bg-gradient-to-r from-purple-500/10 to-cyan-500/10 p-4 rounded-lg border border-cyan-500/30">
-                           <p className="text-xs text-cyan-300 mb-3">Please Send Money to bKash/Nagad: <strong className="text-white">01XXXXXXXXX</strong></p>
-                           <input required type="text" value={trxId} onChange={(e) => setTrxId(e.target.value)} className="w-full bg-black/50 border border-cyan-500/50 rounded-lg px-4 py-2.5 text-white focus:border-cyan-400 focus:outline-none" placeholder="Transaction ID (TrxID)" />
+                        <div className="bg-[#0a0f1a] p-4 rounded-lg border border-gray-800">
+                           <p className="text-xs text-gray-400 mb-3 text-center">Select Payment Method</p>
+                           
+                           {/* 🌟 বিকাশ ও রকেট বাটন 🌟 */}
+                           <div className="flex gap-3 mb-4">
+                              <button 
+                                type="button" 
+                                onClick={() => setPaymentMethod('bkash')} 
+                                className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all border ${paymentMethod === 'bkash' ? 'bg-[#E2136E]/20 text-[#E2136E] border-[#E2136E]' : 'bg-transparent text-gray-500 border-gray-700 hover:border-gray-500'}`}
+                              >
+                                bKash
+                              </button>
+                              <button 
+                                type="button" 
+                                onClick={() => setPaymentMethod('rocket')} 
+                                className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all border ${paymentMethod === 'rocket' ? 'bg-[#8C3494]/20 text-[#8C3494] border-[#8C3494]' : 'bg-transparent text-gray-500 border-gray-700 hover:border-gray-500'}`}
+                              >
+                                Rocket
+                              </button>
+                           </div>
+                           
+                           <p className="text-sm text-center mb-4">
+                             Send Money to: <strong className={paymentMethod === 'bkash' ? "text-[#E2136E]" : "text-[#8C3494]"}>
+                               {paymentMethod === 'bkash' ? '01780692994' : '017190223709'}
+                             </strong>
+                           </p>
+                           
+                           <input required type="text" value={trxId} onChange={(e) => setTrxId(e.target.value)} className="w-full bg-black/50 border border-cyan-500/30 rounded-lg px-4 py-2.5 text-white focus:border-cyan-400 focus:outline-none text-center" placeholder="Enter Transaction ID" />
                         </div>
+                        
                         <button type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-purple-500 to-cyan-500 py-3 rounded-lg font-bold text-white mt-2">
                            {isLoading ? "Processing..." : "Confirm Order"}
                         </button>
