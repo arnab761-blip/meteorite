@@ -1,7 +1,8 @@
 import Link from "next/link";
+import FeaturedPhoto from "@/components/FeaturedPhoto"; // 🌟 নতুন কম্পোনেন্ট ইমপোর্ট করা হলো
 export const dynamic = "force-dynamic";
 
-// 🌟 রিয়েল-টাইম স্পেস নিউজ আনার ফাংশন (প্রতি রিফ্রেশে র‍্যান্ডম নিউজ আসবে) 🌟
+// 🌟 রিয়েল-টাইম স্পেস নিউজ আনার ফাংশন
 async function getSpaceNews() {
   try {
     const randomOffset = Math.floor(Math.random() * 100);
@@ -22,9 +23,9 @@ export default async function Home() {
   const news = await getSpaceNews();
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen px-4 text-center">
+    <main className="flex flex-col items-center justify-center min-h-screen px-4 text-center relative overflow-hidden">
       
-      {/* 🌟 Hero Section (ফ্লোটিং ব্যাকগ্রাউন্ড সহ) 🌟 */}
+      {/* 🌟 Hero Section 🌟 */}
       <div className="mt-32 md:mt-40 max-w-4xl w-full z-10 backdrop-blur-xl bg-black/50 border border-white/10 rounded-3xl p-8 md:p-14 shadow-2xl">
         <div className="inline-block px-4 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 text-sm font-semibold mb-6 shadow-[0_0_15px_rgba(34,211,238,0.2)]">
           🚀 Welcome to the Ultimate Space Community
@@ -48,10 +49,13 @@ export default async function Home() {
         </div>
       </div>
 
+      {/* 🌟 Dynamic Featured Photo Section 🌟 */}
+      <FeaturedPhoto />
+
       {/* 🌟 Features Section 🌟 */}
       <div className="flex flex-col gap-6 max-w-6xl w-full mt-24 mb-16 z-10">
         
-        {/* Main Business: Shop Card (বড় করে সবার ওপরে) */}
+        {/* Main Business: Shop Card */}
         <div className="bg-gradient-to-b from-blue-900/20 to-black/40 backdrop-blur-md border border-blue-500/40 p-10 md:p-14 rounded-3xl hover:bg-black/60 transition-all hover:-translate-y-2 hover:border-blue-400 group shadow-[0_0_30px_rgba(59,130,246,0.15)] flex flex-col items-center text-center">
           <div className="text-5xl md:text-6xl mb-4 group-hover:scale-110 transition-transform">👕</div>
           <h3 className="text-3xl md:text-4xl font-extrabold text-blue-300 mb-2">Space Merch</h3>
@@ -66,7 +70,7 @@ export default async function Home() {
           </Link>
         </div>
 
-        {/* Secondary Features: Q&A and Gallery (নিচে পাশাপাশি) */}
+        {/* Secondary Features: Q&A and Gallery */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
           <div className="bg-black/40 backdrop-blur-md border border-cyan-500/20 p-8 rounded-3xl hover:bg-black/60 transition-all hover:-translate-y-2 hover:border-cyan-500/50 group shadow-lg text-left">
             <div className="text-4xl mb-4 group-hover:scale-110 transition-transform origin-left">❓</div>
