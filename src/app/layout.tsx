@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
 import Navbar from "@/components/Navbar";
+import OneSignalInit from "@/components/OneSignalInit"; // 🌟 নতুন ইমপোর্ট
 
 export const metadata: Metadata = {
   title: "Meteorite | Space Community",
@@ -17,7 +18,10 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-[#050810] text-white relative flex flex-col min-h-screen">
         
-        {/* 🌟 AuthProvider এখন পুরো ওয়েবসাইটকে র‍্যাপ করে আছে 🌟 */}
+        {/* 🌟 নোটিফিকেশন পারমিশনের পপআপ 🌟 */}
+        <OneSignalInit />
+        
+        {/* 🌟 AuthProvider এখন পুরো ওয়েবসাইটকে র‍্যাপ করে আছে 🌟 */}
         <AuthProvider>
           
           {/* ডাইনামিক ব্যাকগ্রাউন্ড */}
@@ -53,7 +57,7 @@ export default function RootLayout({
                 <a href="#" className="hover:text-cyan-400 transition-colors">YouTube</a>
               </div>
               <div className="text-center md:text-right text-sm text-gray-400">
-                <p>Developed by <span className="text-cyan-400 font-semibold">Arnab</span></p>
+                <p>Developed by <span className="text-cyan-400 font-semibold">MD Tahmidul Islam Arnab</span></p> 
                 <p className="mt-1">© 2026 Meteorite. All rights reserved.</p>
               </div>
             </div>
