@@ -3,11 +3,24 @@ import React, { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
+// 🌟 ১০টি আলাদা কালার অপশন 🌟
+const colorOptions = [
+  { name: "Default Purple", class: "bg-purple-500 hover:bg-purple-600 text-white", hex: "#a855f7" },
+  { name: "Rokomari Orange", class: "bg-[#FF9900] hover:bg-[#E68A00] text-white", hex: "#FF9900" },
+  { name: "Daraz Orange", class: "bg-[#F57224] hover:bg-[#D0611E] text-white", hex: "#F57224" },
+  { name: "Amazon Dark", class: "bg-[#232F3E] hover:bg-[#131A22] text-[#FF9900] border border-[#FF9900]", hex: "#232F3E" },
+  { name: "AliExpress Red", class: "bg-[#FF4747] hover:bg-[#CC3939] text-white", hex: "#FF4747" },
+  { name: "Cyan", class: "bg-cyan-500 hover:bg-cyan-600 text-white", hex: "#06b6d4" },
+  { name: "Green", class: "bg-green-500 hover:bg-green-600 text-white", hex: "#22c55e" },
+  { name: "Blue", class: "bg-blue-500 hover:bg-blue-600 text-white", hex: "#3b82f6" },
+  { name: "Pink", class: "bg-pink-500 hover:bg-pink-600 text-white", hex: "#ec4899" },
+  { name: "Slate", class: "bg-slate-600 hover:bg-slate-700 text-white", hex: "#475569" },
+];
+
 export default function Shop() {
   const { data: session } = useSession(); 
   const router = useRouter(); 
 
-  // 🌟 অ্যাডমিন ইমেইল
   const adminEmail = "geminiaipro42@gmail.com";
 
   const [productsList, setProductsList] = useState([]);
@@ -16,6 +29,11 @@ export default function Shop() {
   const [newProductName, setNewProductName] = useState("");
   const [newProductPrice, setNewProductPrice] = useState("");
   const [newAffiliateLink, setNewAffiliateLink] = useState(""); 
+  
+  // 🌟 নতুন কারেন্সি ও কালার স্টেট 🌟
+  const [newCurrency, setNewCurrency] = useState("৳");
+  const [newButtonColor, setNewButtonColor] = useState(colorOptions[0].class);
+  
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -27,6 +45,7 @@ export default function Shop() {
   const [trxId, setTrxId] = useState("");
   const [selectedProduct, setSelectedProduct] = useState("");
   const [selectedPrice, setSelectedPrice] = useState(""); 
+  const [selectedCurrency, setSelectedCurrency] = useState(""); 
   
   const [paymentMethod, setPaymentMethod] = useState("bkash");
   const [copied, setCopied] = useState(false);
@@ -53,7 +72,6 @@ export default function Shop() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // 🌟 Smart Button Text Detector
   const getButtonText = (link: string) => {
     if (!link) return "Buy Now";
     const lowerLink = link.toLowerCase();
@@ -63,26 +81,6 @@ export default function Shop() {
     if (lowerLink.includes('bdshop')) return "Buy from BDShop";
     if (lowerLink.includes('aliexpress')) return "Buy on AliExpress";
     return "Buy from Partner";
-  };
-
-  // 🌟 Smart Button Color Detector
-  const getButtonColor = (link: string) => {
-    if (!link) return "bg-purple-500 hover:bg-purple-600"; 
-    const lowerLink = link.toLowerCase();
-    if (lowerLink.includes('rkmri') || lowerLink.includes('rokomari')) return "bg-[#FF9900] hover:bg-[#E68A00] text-white"; 
-    if (lowerLink.includes('daraz')) return "bg-[#F57224] hover:bg-[#D0611E] text-white"; 
-    if (lowerLink.includes('amazon')) return "bg-[#232F3E] hover:bg-[#131A22] text-[#FF9900] border border-[#FF9900]"; 
-    if (lowerLink.includes('bdshop')) return "bg-[#1E88E5] hover:bg-[#1565C0] text-white"; 
-    if (lowerLink.includes('aliexpress')) return "bg-[#FF4747] hover:bg-[#CC3939] text-white"; 
-    return "bg-cyan-600 hover:bg-cyan-700 text-white"; 
-  };
-
-  // 🌟 Smart Currency Detector
-  const getCurrencySymbol = (link: string) => {
-    if (!link) return "৳";
-    const lowerLink = link.toLowerCase();
-    if (lowerLink.includes('amazon') || lowerLink.includes('aliexpress')) return "$";
-    return "৳";
   };
 
   const handleAddProduct = async (e: React.FormEvent) => {
@@ -110,12 +108,15 @@ export default function Shop() {
             name: newProductName, 
             price: newProductPrice, 
             image: imageUrl,
-            affiliateLink: newAffiliateLink 
+            affiliateLink: newAffiliateLink,
+            currency: newCurrency,
+            buttonColor: newButtonColor
           }),
         });
 
         if (res.ok) {
-          setNewProductName(""); setNewProductPrice(""); setNewAffiliateLink(""); setImageFile(null);
+          setNewProductName(""); setNewProductPrice(""); setNewAffiliateLink(""); 
+          setNewCurrency("৳"); setNewButtonColor(colorOptions[0].class); setImageFile(null);
           setIsAddModalOpen(false);
           fetchProducts(); 
         }
@@ -200,12 +201,11 @@ export default function Shop() {
                     </div>
                     <h4 className="font-semibold text-lg">{product.name}</h4>
                     
-                    {/* 🌟 ডাইনামিক কারেন্সি সিম্বল 🌟 */}
+                    {/* 🌟 ডাইনামিক কারেন্সি ও প্রাইস 🌟 */}
                     <p className="text-cyan-400 mt-1 font-bold text-lg">
-                      {getCurrencySymbol(product.affiliateLink)} {product.price}
+                      {product.currency || "৳"} {product.price}
                     </p>
                     
-                    {/* 🌟 ডাইনামিক কালার ও টেক্সট বাটন 🌟 */}
                     <button 
                       onClick={() => {
                         if (product.affiliateLink) {
@@ -218,9 +218,11 @@ export default function Shop() {
                         }
                         setSelectedProduct(product.name);
                         setSelectedPrice(product.price); 
+                        setSelectedCurrency(product.currency || "৳");
                         setIsModalOpen(true);
                       }}
-                      className={`mt-auto pt-5 w-full py-2.5 rounded-lg font-bold text-sm transition-all shadow-lg text-center ${getButtonColor(product.affiliateLink)}`}
+                      // 🌟 ডাইনামিক কালার ক্লাস 🌟
+                      className={`mt-auto pt-5 w-full py-2.5 rounded-lg font-bold text-sm transition-all shadow-lg text-center ${product.buttonColor || "bg-purple-500 hover:bg-purple-600 text-white"}`}
                     >
                       {getButtonText(product.affiliateLink)}
                     </button>
@@ -232,22 +234,51 @@ export default function Shop() {
          {/* Add Product Modal */}
          {isAddModalOpen && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in">
-               <div className="bg-[#050810]/90 border border-cyan-500/30 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-[0_0_40px_rgba(34,211,238,0.2)] relative text-left">
+               <div className="bg-[#050810]/90 border border-cyan-500/30 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-[0_0_40px_rgba(34,211,238,0.2)] relative text-left max-h-[90vh] overflow-y-auto custom-scrollbar">
                   <button onClick={() => setIsAddModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white rounded-full w-8 h-8 flex items-center justify-center">✕</button>
                   <h3 className="text-2xl font-bold text-cyan-400 mb-6">Add New Product</h3>
                   
                   <form onSubmit={handleAddProduct} className="flex flex-col gap-4">
                      <input required type="text" value={newProductName} onChange={(e) => setNewProductName(e.target.value)} placeholder="Product Name" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none" />
-                     <input required type="number" value={newProductPrice} onChange={(e) => setNewProductPrice(e.target.value)} placeholder="Price" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none" />
+                     
+                     {/* 🌟 কারেন্সি ড্রপডাউন এবং প্রাইস 🌟 */}
+                     <div className="flex gap-2">
+                        <select 
+                          value={newCurrency} 
+                          onChange={(e) => setNewCurrency(e.target.value)} 
+                          className="bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none w-24 cursor-pointer"
+                        >
+                          <option value="৳">৳ (BDT)</option>
+                          <option value="$">$ (USD)</option>
+                        </select>
+                        <input required type="number" step="any" value={newProductPrice} onChange={(e) => setNewProductPrice(e.target.value)} placeholder="Price" className="flex-1 bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none" />
+                     </div>
                      
                      <input type="url" value={newAffiliateLink} onChange={(e) => setNewAffiliateLink(e.target.value)} placeholder="Affiliate Link (Optional)" className="w-full bg-black/50 border border-[#FF9900]/30 rounded-lg px-4 py-2.5 text-white focus:border-[#FF9900] focus:outline-none" />
+
+                     {/* 🌟 কালার পিকার সেকশন 🌟 */}
+                     <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+                       <p className="text-xs text-gray-400 mb-3">Select Button Color:</p>
+                       <div className="flex flex-wrap gap-3 justify-center">
+                         {colorOptions.map((color, index) => (
+                           <button
+                             key={index}
+                             type="button"
+                             onClick={() => setNewButtonColor(color.class)}
+                             style={{ backgroundColor: color.hex }}
+                             className={`w-8 h-8 rounded-full border-2 transition-transform ${newButtonColor === color.class ? 'border-white scale-125 shadow-[0_0_10px_rgba(255,255,255,0.8)]' : 'border-transparent hover:scale-110'}`}
+                             title={color.name}
+                           />
+                         ))}
+                       </div>
+                     </div>
 
                      <div className="bg-white/5 border border-white/10 rounded-lg p-3">
                        <p className="text-xs text-gray-400 mb-2">Upload Product Image:</p>
                        <input required type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] || null)} className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-cyan-500/20 file:text-cyan-400 hover:file:bg-cyan-500/30 cursor-pointer" />
                      </div>
 
-                     <button type="submit" disabled={isUploading} className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 py-3 rounded-lg font-bold text-white mt-4">
+                     <button type="submit" disabled={isUploading} className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 py-3 rounded-lg font-bold text-white mt-2">
                         {isUploading ? "Uploading..." : "Publish Product"}
                      </button>
                   </form>
@@ -263,7 +294,7 @@ export default function Shop() {
                   <h3 className="text-2xl font-bold text-purple-400 mb-1">Checkout</h3>
                   <p className="text-gray-300 text-sm mb-6 flex items-center gap-2">
                     Ordering: <span className="text-cyan-400 font-semibold bg-cyan-400/10 px-2 py-1 rounded">{selectedProduct}</span>
-                    <span className="text-purple-400 ml-2">(৳ {selectedPrice})</span>
+                    <span className="text-purple-400 ml-2">({selectedCurrency} {selectedPrice})</span>
                   </p>
                   
                   {isSubmitted ? (
