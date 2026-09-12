@@ -10,7 +10,6 @@ export default function Shop() {
   // 🌟 অ্যাডমিন ইমেইল
   const adminEmail = "geminiaipro42@gmail.com";
 
-  // 🌟 স্টেটগুলো 🌟
   const [productsList, setProductsList] = useState([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   
@@ -54,7 +53,7 @@ export default function Shop() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // 🌟 Smart Affiliate Link Detector 🌟
+  // 🌟 Smart Button Text Detector
   const getButtonText = (link: string) => {
     if (!link) return "Buy Now";
     const lowerLink = link.toLowerCase();
@@ -64,6 +63,26 @@ export default function Shop() {
     if (lowerLink.includes('bdshop')) return "Buy from BDShop";
     if (lowerLink.includes('aliexpress')) return "Buy on AliExpress";
     return "Buy from Partner";
+  };
+
+  // 🌟 Smart Button Color Detector
+  const getButtonColor = (link: string) => {
+    if (!link) return "bg-purple-500 hover:bg-purple-600"; 
+    const lowerLink = link.toLowerCase();
+    if (lowerLink.includes('rkmri') || lowerLink.includes('rokomari')) return "bg-[#FF9900] hover:bg-[#E68A00] text-white"; 
+    if (lowerLink.includes('daraz')) return "bg-[#F57224] hover:bg-[#D0611E] text-white"; 
+    if (lowerLink.includes('amazon')) return "bg-[#232F3E] hover:bg-[#131A22] text-[#FF9900] border border-[#FF9900]"; 
+    if (lowerLink.includes('bdshop')) return "bg-[#1E88E5] hover:bg-[#1565C0] text-white"; 
+    if (lowerLink.includes('aliexpress')) return "bg-[#FF4747] hover:bg-[#CC3939] text-white"; 
+    return "bg-cyan-600 hover:bg-cyan-700 text-white"; 
+  };
+
+  // 🌟 Smart Currency Detector
+  const getCurrencySymbol = (link: string) => {
+    if (!link) return "৳";
+    const lowerLink = link.toLowerCase();
+    if (lowerLink.includes('amazon') || lowerLink.includes('aliexpress')) return "$";
+    return "৳";
   };
 
   const handleAddProduct = async (e: React.FormEvent) => {
@@ -180,9 +199,13 @@ export default function Shop() {
                        <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/10 to-cyan-500/10 -z-10"></div>
                     </div>
                     <h4 className="font-semibold text-lg">{product.name}</h4>
-                    <p className="text-cyan-400 mt-1 font-bold text-lg">৳ {product.price}</p>
                     
-                    {/* 🌟 ডাইনামিক বাটন 🌟 */}
+                    {/* 🌟 ডাইনামিক কারেন্সি সিম্বল 🌟 */}
+                    <p className="text-cyan-400 mt-1 font-bold text-lg">
+                      {getCurrencySymbol(product.affiliateLink)} {product.price}
+                    </p>
+                    
+                    {/* 🌟 ডাইনামিক কালার ও টেক্সট বাটন 🌟 */}
                     <button 
                       onClick={() => {
                         if (product.affiliateLink) {
@@ -197,9 +220,9 @@ export default function Shop() {
                         setSelectedPrice(product.price); 
                         setIsModalOpen(true);
                       }}
-                      className={`mt-auto pt-5 w-full py-2.5 rounded-lg font-bold text-sm transition-all shadow-lg text-center text-white ${product.affiliateLink ? 'bg-[#FF9900] hover:bg-[#E68A00]' : 'bg-purple-500 hover:bg-purple-600'}`}
+                      className={`mt-auto pt-5 w-full py-2.5 rounded-lg font-bold text-sm transition-all shadow-lg text-center ${getButtonColor(product.affiliateLink)}`}
                     >
-                      {product.affiliateLink ? getButtonText(product.affiliateLink) : "Buy Now"}
+                      {getButtonText(product.affiliateLink)}
                     </button>
                  </div>
                ))}
