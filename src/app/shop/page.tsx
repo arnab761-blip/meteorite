@@ -16,7 +16,7 @@ export default function Shop() {
   
   const [newProductName, setNewProductName] = useState("");
   const [newProductPrice, setNewProductPrice] = useState("");
-  const [newAffiliateLink, setNewAffiliateLink] = useState(""); // 🌟 নতুন স্টেট
+  const [newAffiliateLink, setNewAffiliateLink] = useState(""); 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -54,6 +54,18 @@ export default function Shop() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // 🌟 Smart Affiliate Link Detector 🌟
+  const getButtonText = (link: string) => {
+    if (!link) return "Buy Now";
+    const lowerLink = link.toLowerCase();
+    if (lowerLink.includes('rkmri') || lowerLink.includes('rokomari')) return "Buy from Rokomari";
+    if (lowerLink.includes('daraz')) return "Buy from Daraz";
+    if (lowerLink.includes('amazon')) return "Buy on Amazon";
+    if (lowerLink.includes('bdshop')) return "Buy from BDShop";
+    if (lowerLink.includes('aliexpress')) return "Buy on AliExpress";
+    return "Buy from Partner";
+  };
+
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!imageFile) return alert("Please select a product image!");
@@ -79,7 +91,7 @@ export default function Shop() {
             name: newProductName, 
             price: newProductPrice, 
             image: imageUrl,
-            affiliateLink: newAffiliateLink // 🌟 ডাটাবেসে পাঠানো হচ্ছে
+            affiliateLink: newAffiliateLink 
           }),
         });
 
@@ -170,7 +182,7 @@ export default function Shop() {
                     <h4 className="font-semibold text-lg">{product.name}</h4>
                     <p className="text-cyan-400 mt-1 font-bold text-lg">৳ {product.price}</p>
                     
-                    {/* 🌟 ডাইনামিক বাটন: অ্যাফিলিয়েট থাকলে সরাসরি লিংকে যাবে 🌟 */}
+                    {/* 🌟 ডাইনামিক বাটন 🌟 */}
                     <button 
                       onClick={() => {
                         if (product.affiliateLink) {
@@ -187,7 +199,7 @@ export default function Shop() {
                       }}
                       className={`mt-auto pt-5 w-full py-2.5 rounded-lg font-bold text-sm transition-all shadow-lg text-center text-white ${product.affiliateLink ? 'bg-[#FF9900] hover:bg-[#E68A00]' : 'bg-purple-500 hover:bg-purple-600'}`}
                     >
-                      {product.affiliateLink ? "Buy from Rokomari" : "Buy Now"}
+                      {product.affiliateLink ? getButtonText(product.affiliateLink) : "Buy Now"}
                     </button>
                  </div>
                ))}
@@ -205,7 +217,6 @@ export default function Shop() {
                      <input required type="text" value={newProductName} onChange={(e) => setNewProductName(e.target.value)} placeholder="Product Name" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none" />
                      <input required type="number" value={newProductPrice} onChange={(e) => setNewProductPrice(e.target.value)} placeholder="Price" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none" />
                      
-                     {/* 🌟 নতুন অ্যাফিলিয়েট লিংক ফিল্ড 🌟 */}
                      <input type="url" value={newAffiliateLink} onChange={(e) => setNewAffiliateLink(e.target.value)} placeholder="Affiliate Link (Optional)" className="w-full bg-black/50 border border-[#FF9900]/30 rounded-lg px-4 py-2.5 text-white focus:border-[#FF9900] focus:outline-none" />
 
                      <div className="bg-white/5 border border-white/10 rounded-lg p-3">
@@ -221,7 +232,7 @@ export default function Shop() {
             </div>
          )}
 
-         {/* Checkout Modal (অপরিবর্তিত) */}
+         {/* Checkout Modal */}
          {isModalOpen && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
                <div className="bg-[#050810]/90 border border-purple-500/30 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-[0_0_40px_rgba(168,85,247,0.2)] relative text-left max-h-[90vh] overflow-y-auto custom-scrollbar">
