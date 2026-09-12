@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
 import Navbar from "@/components/Navbar";
-import OneSignalInit from "@/components/OneSignalInit"; // 🌟 নতুন ইমপোর্ট
+import Script from "next/script"; // 🌟 Script ইমপোর্ট করা হলো
 
 export const metadata: Metadata = {
   title: "Meteorite | Space Community",
@@ -16,10 +16,26 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        {/* 🌟 ডাইরেক্ট OneSignal অফিশিয়াল কোড (প্যাকেজ ছাড়া) 🌟 */}
+        <Script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" strategy="beforeInteractive" />
+        <Script id="onesignal-init" strategy="afterInteractive" dangerouslySetInnerHTML={{
+          __html: `
+            window.OneSignalDeferred = window.OneSignalDeferred || [];
+            OneSignalDeferred.push(async function(OneSignal) {
+              await OneSignal.init({
+                appId: "153391b2-a4c5-4141-818f-15e313e2224f",
+                notifyButton: {
+                  enable: true,
+                },
+              });
+              OneSignal.Slidedown.promptPush();
+            });
+          `
+        }} />
+      </head>
+      
       <body className="bg-[#050810] text-white relative flex flex-col min-h-screen">
-        
-        {/* 🌟 নোটিফিকেশন পারমিশনের পপআপ 🌟 */}
-        <OneSignalInit />
         
         {/* 🌟 AuthProvider এখন পুরো ওয়েবসাইটকে র‍্যাপ করে আছে 🌟 */}
         <AuthProvider>
