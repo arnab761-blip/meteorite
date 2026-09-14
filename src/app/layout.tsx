@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
 import Navbar from "@/components/Navbar";
-import Script from "next/script"; // 🌟 Script ইমপোর্ট করা হলো
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Meteorite | Space Community",
@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* 🌟 ডাইরেক্ট OneSignal অফিশিয়াল কোড (প্যাকেজ ছাড়া) 🌟 */}
+        {/* 🌟 ডাইরেক্ট OneSignal অফিশিয়াল কোড 🌟 */}
         <Script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" strategy="beforeInteractive" />
         <Script id="onesignal-init" strategy="afterInteractive" dangerouslySetInnerHTML={{
           __html: `
@@ -59,7 +59,8 @@ export default function RootLayout({
 
           {/* ফুটার */}
           <footer className="w-full backdrop-blur-xl bg-black/60 border-t border-white/20 py-10 mt-auto relative z-10">
-            <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-8 md:gap-6">
+              
               <div className="text-center md:text-left">
                 <div className="flex items-center justify-center md:justify-start gap-3 mb-1">
                   <img src="/meteoritelogo.jpg" alt="Logo" className="w-7 h-7 md:w-8 md:h-8 rounded-full border border-purple-500/50 object-cover shadow-[0_0_10px_rgba(168,85,247,0.3)]" />
@@ -67,15 +68,36 @@ export default function RootLayout({
                 </div>
                 <p className="text-gray-400 text-sm mt-2">Explore the cosmos with us.</p>
               </div>
-              <div className="flex gap-6 text-gray-300">
-                <a href="#" className="hover:text-cyan-400 transition-colors">Facebook</a>
-                <a href="#" className="hover:text-cyan-400 transition-colors">Telegram</a>
-                <a href="#" className="hover:text-cyan-400 transition-colors">YouTube</a>
+              
+              {/* 🌟 আপডেট করা সোশ্যাল আইকন সেকশন (লোগো এবং নাম সহ) 🌟 */}
+              <div className="flex gap-6 md:gap-8 text-gray-300">
+                <a href="https://www.facebook.com/share/1FBWuxCosM/" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 hover:text-cyan-400 transition-all hover:scale-110">
+                  <img src="/Logo_de_Facebook.png" alt="Facebook" className="w-6 h-6 object-contain" />
+                  <span className="text-[11px] font-medium tracking-wide">Facebook</span>
+                </a>
+                
+                <a href="https://t.me/meteorite_bd" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 hover:text-cyan-400 transition-all hover:scale-110">
+                  <img src="/telegram.png" alt="Telegram" className="w-6 h-6 object-contain" />
+                  <span className="text-[11px] font-medium tracking-wide">Telegram</span>
+                </a>
+                
+                <a href="https://www.instagram.com/meteorite_bd?stkn=ZjJ0cWNrajF3eW8x" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 hover:text-cyan-400 transition-all hover:scale-110">
+                  <img src="/Instagram_icon.png.webp" alt="Instagram" className="w-6 h-6 object-contain" />
+                  <span className="text-[11px] font-medium tracking-wide">Instagram</span>
+                </a>
+                
+                <a href="https://www.youtube.com/channel/UC0sTKaKHBzk9Q9bePDJKl_Q" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-2 hover:text-cyan-400 transition-all hover:scale-110">
+                  <img src="/Youtube_logo.png" alt="YouTube" className="w-6 h-6 object-contain" />
+                  <span className="text-[11px] font-medium tracking-wide">YouTube</span>
+                </a>
               </div>
+              
               <div className="text-center md:text-right text-sm text-gray-400">
-                <p>Developed by <span className="text-cyan-400 font-semibold">MD Tahmidul Islam Arnab</span></p> 
+                {/* 🌟 তোর নামের ওপর ক্লিক করলে LinkedIn ওপেন হবে 🌟 */}
+                <p>Developed by <a href="https://www.linkedin.com/in/md-tahmidul-islam-arnab-580587320?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" rel="noopener noreferrer" className="text-cyan-400 font-semibold hover:underline">MD Tahmidul Islam Arnab</a></p> 
                 <p className="mt-1">© 2026 Meteorite. All rights reserved.</p>
               </div>
+              
             </div>
           </footer>
           
