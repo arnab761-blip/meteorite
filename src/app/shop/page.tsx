@@ -17,6 +17,9 @@ const colorOptions = [
   { name: "Slate", class: "bg-slate-600 hover:bg-slate-700 text-white", hex: "#475569" },
 ];
 
+// 🌟 নতুন ক্যাটাগরি লিস্ট 🌟
+const productCategories = ["Books", "Telescopes & Gears", "Apparels", "Others"];
+
 export default function Shop() {
   const { data: session } = useSession(); 
   const router = useRouter(); 
@@ -30,9 +33,10 @@ export default function Shop() {
   const [newProductPrice, setNewProductPrice] = useState("");
   const [newAffiliateLink, setNewAffiliateLink] = useState(""); 
   
-  // 🌟 নতুন কারেন্সি ও কালার স্টেট 🌟
+  // 🌟 নতুন কারেন্সি, কালার ও ক্যাটাগরি স্টেট 🌟
   const [newCurrency, setNewCurrency] = useState("৳");
   const [newButtonColor, setNewButtonColor] = useState(colorOptions[0].class);
+  const [newCategory, setNewCategory] = useState(productCategories[0]); 
   
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -110,13 +114,15 @@ export default function Shop() {
             image: imageUrl,
             affiliateLink: newAffiliateLink,
             currency: newCurrency,
-            buttonColor: newButtonColor
+            buttonColor: newButtonColor,
+            category: newCategory // 🌟 নতুন ক্যাটাগরি পাঠানো হচ্ছে
           }),
         });
 
         if (res.ok) {
           setNewProductName(""); setNewProductPrice(""); setNewAffiliateLink(""); 
-          setNewCurrency("৳"); setNewButtonColor(colorOptions[0].class); setImageFile(null);
+          setNewCurrency("৳"); setNewButtonColor(colorOptions[0].class); 
+          setNewCategory(productCategories[0]); setImageFile(null);
           setIsAddModalOpen(false);
           fetchProducts(); 
         }
@@ -165,9 +171,49 @@ export default function Shop() {
     }
   };
 
+  // 🌟 প্রোডাক্ট কার্ড রেন্ডার করার ফাংশন (যাতে কোড বারবার লিখতে না হয়) 🌟
+  const renderProductCard = (product: any) => (
+    <div key={product._id} className="bg-white/10 p-4 md:p-5 rounded-xl border border-white/10 w-64 transition-transform hover:scale-105 duration-300 flex flex-col text-left">
+        <div className="w-full h-48 bg-black/40 rounded-lg mb-4 overflow-hidden relative group">
+          <img 
+            src={product.image} 
+            alt={product.name}
+            className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/10 to-cyan-500/10 -z-10"></div>
+        </div>
+        <h4 className="font-semibold text-lg">{product.name}</h4>
+        
+        <p className="text-cyan-400 mt-1 font-bold text-lg">
+          {product.currency || "৳"} {product.price}
+        </p>
+        
+        <button 
+          onClick={() => {
+            if (product.affiliateLink) {
+                window.open(product.affiliateLink, '_blank');
+                return;
+            }
+            if (!session) {
+              router.push("/login"); 
+              return;
+            }
+            setSelectedProduct(product.name);
+            setSelectedPrice(product.price); 
+            setSelectedCurrency(product.currency || "৳");
+            setIsModalOpen(true);
+          }}
+          className={`mt-auto pt-5 w-full py-2.5 rounded-lg font-bold text-sm transition-all shadow-lg text-center ${product.buttonColor || "bg-purple-500 hover:bg-purple-600 text-white"}`}
+        >
+          {getButtonText(product.affiliateLink)}
+        </button>
+    </div>
+  );
+
   return (
     <main className="flex flex-col items-center pt-32 px-4 text-center min-h-screen">
-         <div className="backdrop-blur-md bg-white/5 p-6 md:p-10 rounded-3xl border border-white/10 max-w-5xl w-full shadow-2xl mt-10 mb-20 relative">
+         <div className="backdrop-blur-md bg-white/5 p-6 md:p-10 rounded-3xl border border-white/10 max-w-6xl w-full shadow-2xl mt-10 mb-20 relative">
              
              <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
                <div className="text-left">
@@ -185,50 +231,34 @@ export default function Shop() {
                )}
              </div>
              
-             <div className="flex flex-wrap justify-center gap-6">
-               {productsList.length === 0 && <p className="text-gray-400">No products available yet. Add some!</p>}
-               
-               {productsList.map((product: any) => (
-                 <div key={product._id} className="bg-white/10 p-4 md:p-5 rounded-xl border border-white/10 w-64 transition-transform hover:scale-105 duration-300 flex flex-col text-left">
-                    <div className="w-full h-48 bg-black/40 rounded-lg mb-4 overflow-hidden relative group">
-                       <img 
-                         src={product.image} 
-                         alt={product.name}
-                         className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                         onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                       />
-                       <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/10 to-cyan-500/10 -z-10"></div>
-                    </div>
-                    <h4 className="font-semibold text-lg">{product.name}</h4>
-                    
-                    {/* 🌟 ডাইনামিক কারেন্সি ও প্রাইস 🌟 */}
-                    <p className="text-cyan-400 mt-1 font-bold text-lg">
-                      {product.currency || "৳"} {product.price}
-                    </p>
-                    
-                    <button 
-                      onClick={() => {
-                        if (product.affiliateLink) {
-                           window.open(product.affiliateLink, '_blank');
-                           return;
-                        }
-                        if (!session) {
-                          router.push("/login"); 
-                          return;
-                        }
-                        setSelectedProduct(product.name);
-                        setSelectedPrice(product.price); 
-                        setSelectedCurrency(product.currency || "৳");
-                        setIsModalOpen(true);
-                      }}
-                      // 🌟 ডাইনামিক কালার ক্লাস 🌟
-                      className={`mt-auto pt-5 w-full py-2.5 rounded-lg font-bold text-sm transition-all shadow-lg text-center ${product.buttonColor || "bg-purple-500 hover:bg-purple-600 text-white"}`}
-                    >
-                      {getButtonText(product.affiliateLink)}
-                    </button>
+             {/* 🌟 আগের মিক্সড প্রোডাক্ট সেকশন (All Products) 🌟 */}
+             <div className="mb-16">
+                 {productsList.length === 0 && <p className="text-gray-400">No products available yet. Add some!</p>}
+                 <div className="flex flex-wrap justify-center gap-6">
+                   {productsList.map((product: any) => renderProductCard(product))}
                  </div>
-               ))}
              </div>
+
+             {/* 🌟 নতুন ক্যাটাগরি অনুযায়ী ভাগ করা সেকশন 🌟 */}
+             {productsList.length > 0 && (
+                <div className="w-full flex flex-col gap-14 mt-10 border-t border-white/10 pt-16">
+                  <h2 className="text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 mb-4">Shop by Category</h2>
+                  
+                  {productCategories.map(category => {
+                      const categoryProducts = productsList.filter((p: any) => p.category === category);
+                      if (categoryProducts.length === 0) return null; // প্রোডাক্ট না থাকলে সেকশন দেখাবে না
+                      
+                      return (
+                        <div key={category} className="w-full text-left">
+                            <h3 className="text-2xl font-bold text-white mb-8 border-l-4 border-cyan-500 pl-3">{category}</h3>
+                            <div className="flex flex-wrap justify-center md:justify-start gap-6">
+                              {categoryProducts.map((product: any) => renderProductCard(product))}
+                            </div>
+                        </div>
+                      )
+                  })}
+                </div>
+             )}
          </div>
 
          {/* Add Product Modal */}
@@ -241,7 +271,6 @@ export default function Shop() {
                   <form onSubmit={handleAddProduct} className="flex flex-col gap-4">
                      <input required type="text" value={newProductName} onChange={(e) => setNewProductName(e.target.value)} placeholder="Product Name" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none" />
                      
-                     {/* 🌟 কারেন্সি ড্রপডাউন এবং প্রাইস 🌟 */}
                      <div className="flex gap-2">
                         <select 
                           value={newCurrency} 
@@ -253,10 +282,23 @@ export default function Shop() {
                         </select>
                         <input required type="number" step="any" value={newProductPrice} onChange={(e) => setNewProductPrice(e.target.value)} placeholder="Price" className="flex-1 bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none" />
                      </div>
+
+                     {/* 🌟 ক্যাটাগরি সিলেক্ট করার অপশন 🌟 */}
+                     <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+                        <p className="text-xs text-gray-400 mb-2">Select Category:</p>
+                        <select
+                          value={newCategory}
+                          onChange={(e) => setNewCategory(e.target.value)}
+                          className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none cursor-pointer"
+                        >
+                          {productCategories.map((cat, idx) => (
+                            <option key={idx} value={cat}>{cat}</option>
+                          ))}
+                        </select>
+                     </div>
                      
                      <input type="url" value={newAffiliateLink} onChange={(e) => setNewAffiliateLink(e.target.value)} placeholder="Affiliate Link (Optional)" className="w-full bg-black/50 border border-[#FF9900]/30 rounded-lg px-4 py-2.5 text-white focus:border-[#FF9900] focus:outline-none" />
 
-                     {/* 🌟 কালার পিকার সেকশন 🌟 */}
                      <div className="bg-white/5 border border-white/10 rounded-lg p-3">
                        <p className="text-xs text-gray-400 mb-3">Select Button Color:</p>
                        <div className="flex flex-wrap gap-3 justify-center">
@@ -286,9 +328,10 @@ export default function Shop() {
             </div>
          )}
 
-         {/* Checkout Modal */}
+         {/* Checkout Modal (আগের মতোই আছে) */}
          {isModalOpen && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+               {/* ... (বাকি চেকআউট কোড হুবহু আগের মতো) ... */}
                <div className="bg-[#050810]/90 border border-purple-500/30 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-[0_0_40px_rgba(168,85,247,0.2)] relative text-left max-h-[90vh] overflow-y-auto custom-scrollbar">
                   <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white rounded-full w-8 h-8 flex items-center justify-center">✕</button>
                   <h3 className="text-2xl font-bold text-purple-400 mb-1">Checkout</h3>

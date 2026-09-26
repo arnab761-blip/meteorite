@@ -14,9 +14,13 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const { name, price, image, affiliateLink, currency, buttonColor } = await req.json(); 
+    // 🌟 এখানে category রিসিভ করা হলো 🌟
+    const { name, price, image, affiliateLink, currency, buttonColor, category } = await req.json(); 
     await connectMongoDB();
-    await Product.create({ name, price, image, affiliateLink, currency, buttonColor });
+    
+    // 🌟 এখানে ডাটাবেসে category সহ প্রোডাক্ট সেভ করা হলো 🌟
+    await Product.create({ name, price, image, affiliateLink, currency, buttonColor, category });
+    
     return NextResponse.json({ message: "Product Created" }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ message: "Error" }, { status: 500 });

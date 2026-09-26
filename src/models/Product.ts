@@ -6,8 +6,9 @@ const productSchema = new Schema(
     price: { type: String, required: true },
     image: { type: String, required: true },
     affiliateLink: { type: String, required: false },
-    currency: { type: String, required: false, default: "৳" }, // 🌟 নতুন
-    buttonColor: { type: String, required: false, default: "bg-purple-500 hover:bg-purple-600 text-white" } // 🌟 নতুন
+    currency: { type: String, required: false, default: "৳" }, 
+    buttonColor: { type: String, required: false, default: "bg-purple-500 hover:bg-purple-600 text-white" },
+    category: { type: String, required: true, default: "Others" } // 🌟 নতুন ক্যাটাগরি ফিল্ড
   },
   { timestamps: true }
 );
