@@ -17,8 +17,9 @@ const colorOptions = [
   { name: "Slate", class: "bg-slate-600 hover:bg-slate-700 text-white", hex: "#475569" },
 ];
 
-// 🌟 নতুন ক্যাটাগরি লিস্ট 🌟
-const productCategories = ["Books", "Telescopes & Gears", "Apparels", "Others"];
+// 🌟 ক্যাটাগরি লিস্ট 🌟
+const mainCategories = ["Books", "Telescopes & Gears", "Apparels"];
+const allCategoriesForForm = [...mainCategories, "Others"];
 
 export default function Shop() {
   const { data: session } = useSession(); 
@@ -33,10 +34,9 @@ export default function Shop() {
   const [newProductPrice, setNewProductPrice] = useState("");
   const [newAffiliateLink, setNewAffiliateLink] = useState(""); 
   
-  // 🌟 নতুন কারেন্সি, কালার ও ক্যাটাগরি স্টেট 🌟
   const [newCurrency, setNewCurrency] = useState("৳");
   const [newButtonColor, setNewButtonColor] = useState(colorOptions[0].class);
-  const [newCategory, setNewCategory] = useState(productCategories[0]); 
+  const [newCategory, setNewCategory] = useState(allCategoriesForForm[0]); 
   
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -115,14 +115,14 @@ export default function Shop() {
             affiliateLink: newAffiliateLink,
             currency: newCurrency,
             buttonColor: newButtonColor,
-            category: newCategory // 🌟 নতুন ক্যাটাগরি পাঠানো হচ্ছে
+            category: newCategory 
           }),
         });
 
         if (res.ok) {
           setNewProductName(""); setNewProductPrice(""); setNewAffiliateLink(""); 
           setNewCurrency("৳"); setNewButtonColor(colorOptions[0].class); 
-          setNewCategory(productCategories[0]); setImageFile(null);
+          setNewCategory(allCategoriesForForm[0]); setImageFile(null);
           setIsAddModalOpen(false);
           fetchProducts(); 
         }
@@ -171,7 +171,15 @@ export default function Shop() {
     }
   };
 
-  // 🌟 প্রোডাক্ট কার্ড রেন্ডার করার ফাংশন (যাতে কোড বারবার লিখতে না হয়) 🌟
+  // 🌟 স্পেসিফিক সেকশনে স্মুথ স্ক্রল করার ফাংশন 🌟
+  const scrollToCategory = (categoryId: string) => {
+    const element = document.getElementById(categoryId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  // প্রোডাক্ট কার্ড রেন্ডার ফাংশন
   const renderProductCard = (product: any) => (
     <div key={product._id} className="bg-white/10 p-4 md:p-5 rounded-xl border border-white/10 w-64 transition-transform hover:scale-105 duration-300 flex flex-col text-left">
         <div className="w-full h-48 bg-black/40 rounded-lg mb-4 overflow-hidden relative group">
@@ -211,11 +219,14 @@ export default function Shop() {
     </div>
   );
 
+  const otherProducts = productsList.filter((p: any) => p.category === "Others" || !p.category);
+
   return (
     <main className="flex flex-col items-center pt-32 px-4 text-center min-h-screen">
          <div className="backdrop-blur-md bg-white/5 p-6 md:p-10 rounded-3xl border border-white/10 max-w-6xl w-full shadow-2xl mt-10 mb-20 relative">
              
-             <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+             {/* হেডার সেকশন */}
+             <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                <div className="text-left">
                  <h2 className="text-3xl md:text-4xl font-bold mb-2 text-purple-400">Meteorite Shop</h2>
                  <p className="text-sm md:text-base text-gray-300">Grab your exclusive space merch and astronomy gear.</p>
@@ -230,26 +241,44 @@ export default function Shop() {
                  </button>
                )}
              </div>
-             
-             {/* 🌟 আগের মিক্সড প্রোডাক্ট সেকশন (All Products) 🌟 */}
-             <div className="mb-16">
-                 {productsList.length === 0 && <p className="text-gray-400">No products available yet. Add some!</p>}
-                 <div className="flex flex-wrap justify-center gap-6">
-                   {productsList.map((product: any) => renderProductCard(product))}
-                 </div>
-             </div>
 
-             {/* 🌟 নতুন ক্যাটাগরি অনুযায়ী ভাগ করা সেকশন 🌟 */}
+             {/* 🌟 ক্যাটাগরি মিনিবার (স্টিকি নেভিগেশন) 🌟 */}
              {productsList.length > 0 && (
-                <div className="w-full flex flex-col gap-14 mt-10 border-t border-white/10 pt-16">
-                  <h2 className="text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 mb-4">Shop by Category</h2>
-                  
-                  {productCategories.map(category => {
+               <div className="sticky top-20 z-40 w-full flex flex-wrap justify-center md:justify-start gap-3 bg-black/50 backdrop-blur-lg py-4 px-6 rounded-2xl border border-white/10 mb-12 shadow-lg">
+                 {mainCategories.map(cat => (
+                   <button
+                     key={cat}
+                     onClick={() => scrollToCategory(cat.replace(/\s+/g, '-').toLowerCase())}
+                     className="px-5 py-2 rounded-full text-sm font-semibold bg-white/5 hover:bg-cyan-500/20 text-gray-300 hover:text-cyan-400 border border-transparent hover:border-cyan-500/50 transition-all duration-300"
+                   >
+                     {cat}
+                   </button>
+                 ))}
+                 {otherProducts.length > 0 && (
+                   <button
+                     onClick={() => scrollToCategory('others')}
+                     className="px-5 py-2 rounded-full text-sm font-semibold bg-white/5 hover:bg-purple-500/20 text-gray-300 hover:text-purple-400 border border-transparent hover:border-purple-500/50 transition-all duration-300"
+                   >
+                     Others
+                   </button>
+                 )}
+               </div>
+             )}
+             
+             {productsList.length === 0 && <p className="text-gray-400 mb-10">No products available yet. Add some!</p>}
+
+             {/* মূল ক্যাটাগরি প্রোডাক্টস */}
+             {productsList.length > 0 && (
+                <div className="w-full flex flex-col gap-14">
+                  {mainCategories.map(category => {
                       const categoryProducts = productsList.filter((p: any) => p.category === category);
-                      if (categoryProducts.length === 0) return null; // প্রোডাক্ট না থাকলে সেকশন দেখাবে না
+                      if (categoryProducts.length === 0) return null; 
                       
+                      const sectionId = category.replace(/\s+/g, '-').toLowerCase();
+
                       return (
-                        <div key={category} className="w-full text-left">
+                        // 🌟 scroll-mt-32 ব্যবহার করা হয়েছে যেন মিনিবারের নিচে হেডিং ঢাকা না পড়ে 🌟
+                        <div key={category} id={sectionId} className="w-full text-left scroll-mt-44">
                             <h3 className="text-2xl font-bold text-white mb-8 border-l-4 border-cyan-500 pl-3">{category}</h3>
                             <div className="flex flex-wrap justify-center md:justify-start gap-6">
                               {categoryProducts.map((product: any) => renderProductCard(product))}
@@ -258,6 +287,16 @@ export default function Shop() {
                       )
                   })}
                 </div>
+             )}
+
+             {/* Others প্রোডাক্টস */}
+             {otherProducts.length > 0 && (
+                 <div id="others" className="w-full text-left mt-16 pt-12 border-t border-white/10 scroll-mt-44">
+                    <h3 className="text-2xl font-bold text-white mb-8 border-l-4 border-purple-500 pl-3">Other Products</h3>
+                    <div className="flex flex-wrap justify-center md:justify-start gap-6">
+                      {otherProducts.map((product: any) => renderProductCard(product))}
+                    </div>
+                 </div>
              )}
          </div>
 
@@ -283,7 +322,6 @@ export default function Shop() {
                         <input required type="number" step="any" value={newProductPrice} onChange={(e) => setNewProductPrice(e.target.value)} placeholder="Price" className="flex-1 bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none" />
                      </div>
 
-                     {/* 🌟 ক্যাটাগরি সিলেক্ট করার অপশন 🌟 */}
                      <div className="bg-white/5 border border-white/10 rounded-lg p-3">
                         <p className="text-xs text-gray-400 mb-2">Select Category:</p>
                         <select
@@ -291,7 +329,7 @@ export default function Shop() {
                           onChange={(e) => setNewCategory(e.target.value)}
                           className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none cursor-pointer"
                         >
-                          {productCategories.map((cat, idx) => (
+                          {allCategoriesForForm.map((cat, idx) => (
                             <option key={idx} value={cat}>{cat}</option>
                           ))}
                         </select>
@@ -328,7 +366,7 @@ export default function Shop() {
             </div>
          )}
 
-         {/* Checkout Modal (আগের মতোই আছে) */}
+         {/* Checkout Modal */}
          {isModalOpen && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
                {/* ... (বাকি চেকআউট কোড হুবহু আগের মতো) ... */}
