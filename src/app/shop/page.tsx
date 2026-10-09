@@ -1,4 +1,5 @@
 "use client";
+import { motion, AnimatePresence } from "framer-motion";
 import React, { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -171,7 +172,6 @@ export default function Shop() {
     }
   };
 
-  // 🌟 স্পেসিফিক সেকশনে স্মুথ স্ক্রল করার ফাংশন 🌟
   const scrollToCategory = (categoryId: string) => {
     const element = document.getElementById(categoryId);
     if (element) {
@@ -179,9 +179,17 @@ export default function Shop() {
     }
   };
 
-  // প্রোডাক্ট কার্ড রেন্ডার ফাংশন
-  const renderProductCard = (product: any) => (
-    <div key={product._id} className="bg-white/10 p-4 md:p-5 rounded-xl border border-white/10 w-64 transition-transform hover:scale-105 duration-300 flex flex-col text-left">
+  // 🌟 প্রোডাক্ট কার্ডে অ্যানিমেশন যুক্ত করা হলো 🌟
+  const renderProductCard = (product: any, index: number) => (
+    <motion.div 
+      key={product._id} 
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }} 
+      transition={{ duration: 0.4, delay: index * 0.1 }} // Stagger effect
+      whileHover={{ scale: 1.05 }} // হোভার ইফেক্ট
+      className="bg-white/10 p-4 md:p-5 rounded-xl border border-white/10 w-64 flex flex-col text-left cursor-pointer"
+    >
         <div className="w-full h-48 bg-black/40 rounded-lg mb-4 overflow-hidden relative group">
           <img 
             src={product.image} 
@@ -216,7 +224,7 @@ export default function Shop() {
         >
           {getButtonText(product.affiliateLink)}
         </button>
-    </div>
+    </motion.div>
   );
 
   const otherProducts = productsList.filter((p: any) => p.category === "Others" || !p.category);
@@ -233,16 +241,18 @@ export default function Shop() {
                </div>
                
                {session?.user?.email === adminEmail && (
-                 <button 
+                 <motion.button 
+                   whileHover={{ scale: 1.05 }}
+                   whileTap={{ scale: 0.95 }}
                    onClick={() => setIsAddModalOpen(true)}
                    className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-2.5 rounded-full font-bold transition-all shadow-[0_0_15px_rgba(34,211,238,0.3)]"
                  >
                    + Add Product
-                 </button>
+                 </motion.button>
                )}
              </div>
 
-             {/* 🌟 ক্যাটাগরি মিনিবার (স্টিকি নেভিগেশন) 🌟 */}
+             {/* ক্যাটাগরি মিনিবার */}
              {productsList.length > 0 && (
                <div className="sticky top-20 z-40 w-full flex flex-wrap justify-center md:justify-start gap-3 bg-black/50 backdrop-blur-lg py-4 px-6 rounded-2xl border border-white/10 mb-12 shadow-lg">
                  {mainCategories.map(cat => (
@@ -270,18 +280,17 @@ export default function Shop() {
              {/* মূল ক্যাটাগরি প্রোডাক্টস */}
              {productsList.length > 0 && (
                 <div className="w-full flex flex-col gap-14">
-                  {mainCategories.map(category => {
+                  {mainCategories.map((category, catIndex) => {
                       const categoryProducts = productsList.filter((p: any) => p.category === category);
                       if (categoryProducts.length === 0) return null; 
                       
                       const sectionId = category.replace(/\s+/g, '-').toLowerCase();
 
                       return (
-                        // 🌟 scroll-mt-32 ব্যবহার করা হয়েছে যেন মিনিবারের নিচে হেডিং ঢাকা না পড়ে 🌟
                         <div key={category} id={sectionId} className="w-full text-left scroll-mt-44">
                             <h3 className="text-2xl font-bold text-white mb-8 border-l-4 border-cyan-500 pl-3">{category}</h3>
                             <div className="flex flex-wrap justify-center md:justify-start gap-6">
-                              {categoryProducts.map((product: any) => renderProductCard(product))}
+                              {categoryProducts.map((product: any, index: number) => renderProductCard(product, index))}
                             </div>
                         </div>
                       )
@@ -294,170 +303,212 @@ export default function Shop() {
                  <div id="others" className="w-full text-left mt-16 pt-12 border-t border-white/10 scroll-mt-44">
                     <h3 className="text-2xl font-bold text-white mb-8 border-l-4 border-purple-500 pl-3">Other Products</h3>
                     <div className="flex flex-wrap justify-center md:justify-start gap-6">
-                      {otherProducts.map((product: any) => renderProductCard(product))}
+                      {otherProducts.map((product: any, index: number) => renderProductCard(product, index))}
                     </div>
                  </div>
              )}
          </div>
 
-         {/* Add Product Modal */}
-         {isAddModalOpen && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in">
-               <div className="bg-[#050810]/90 border border-cyan-500/30 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-[0_0_40px_rgba(34,211,238,0.2)] relative text-left max-h-[90vh] overflow-y-auto custom-scrollbar">
-                  <button onClick={() => setIsAddModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white rounded-full w-8 h-8 flex items-center justify-center">✕</button>
-                  <h3 className="text-2xl font-bold text-cyan-400 mb-6">Add New Product</h3>
-                  
-                  <form onSubmit={handleAddProduct} className="flex flex-col gap-4">
-                     <input required type="text" value={newProductName} onChange={(e) => setNewProductName(e.target.value)} placeholder="Product Name" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none" />
-                     
-                     <div className="flex gap-2">
-                        <select 
-                          value={newCurrency} 
-                          onChange={(e) => setNewCurrency(e.target.value)} 
-                          className="bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none w-24 cursor-pointer"
-                        >
-                          <option value="৳">৳ (BDT)</option>
-                          <option value="$">$ (USD)</option>
-                        </select>
-                        <input required type="number" step="any" value={newProductPrice} onChange={(e) => setNewProductPrice(e.target.value)} placeholder="Price" className="flex-1 bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none" />
-                     </div>
-
-                     <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-                        <p className="text-xs text-gray-400 mb-2">Select Category:</p>
-                        <select
-                          value={newCategory}
-                          onChange={(e) => setNewCategory(e.target.value)}
-                          className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none cursor-pointer"
-                        >
-                          {allCategoriesForForm.map((cat, idx) => (
-                            <option key={idx} value={cat}>{cat}</option>
-                          ))}
-                        </select>
-                     </div>
-                     
-                     <input type="url" value={newAffiliateLink} onChange={(e) => setNewAffiliateLink(e.target.value)} placeholder="Affiliate Link (Optional)" className="w-full bg-black/50 border border-[#FF9900]/30 rounded-lg px-4 py-2.5 text-white focus:border-[#FF9900] focus:outline-none" />
-
-                     <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-                       <p className="text-xs text-gray-400 mb-3">Select Button Color:</p>
-                       <div className="flex flex-wrap gap-3 justify-center">
-                         {colorOptions.map((color, index) => (
-                           <button
-                             key={index}
-                             type="button"
-                             onClick={() => setNewButtonColor(color.class)}
-                             style={{ backgroundColor: color.hex }}
-                             className={`w-8 h-8 rounded-full border-2 transition-transform ${newButtonColor === color.class ? 'border-white scale-125 shadow-[0_0_10px_rgba(255,255,255,0.8)]' : 'border-transparent hover:scale-110'}`}
-                             title={color.name}
-                           />
-                         ))}
+         {/* 🌟 Add Product Modal এ AnimatePresence যুক্ত করা হলো 🌟 */}
+         <AnimatePresence>
+           {isAddModalOpen && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
+              >
+                 <motion.div 
+                   initial={{ scale: 0.8, opacity: 0, y: 50 }}
+                   animate={{ scale: 1, opacity: 1, y: 0 }}
+                   exit={{ scale: 0.8, opacity: 0, y: 50 }}
+                   transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                   className="bg-[#050810]/90 border border-cyan-500/30 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-[0_0_40px_rgba(34,211,238,0.2)] relative text-left max-h-[90vh] overflow-y-auto custom-scrollbar"
+                 >
+                    <button onClick={() => setIsAddModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white rounded-full w-8 h-8 flex items-center justify-center">✕</button>
+                    <h3 className="text-2xl font-bold text-cyan-400 mb-6">Add New Product</h3>
+                    
+                    <form onSubmit={handleAddProduct} className="flex flex-col gap-4">
+                       <input required type="text" value={newProductName} onChange={(e) => setNewProductName(e.target.value)} placeholder="Product Name" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none" />
+                       
+                       <div className="flex gap-2">
+                          <select 
+                            value={newCurrency} 
+                            onChange={(e) => setNewCurrency(e.target.value)} 
+                            className="bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none w-24 cursor-pointer"
+                          >
+                            <option value="৳">৳ (BDT)</option>
+                            <option value="$">$ (USD)</option>
+                          </select>
+                          <input required type="number" step="any" value={newProductPrice} onChange={(e) => setNewProductPrice(e.target.value)} placeholder="Price" className="flex-1 bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none" />
                        </div>
-                     </div>
 
-                     <div className="bg-white/5 border border-white/10 rounded-lg p-3">
-                       <p className="text-xs text-gray-400 mb-2">Upload Product Image:</p>
-                       <input required type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] || null)} className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-cyan-500/20 file:text-cyan-400 hover:file:bg-cyan-500/30 cursor-pointer" />
-                     </div>
+                       <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+                          <p className="text-xs text-gray-400 mb-2">Select Category:</p>
+                          <select
+                            value={newCategory}
+                            onChange={(e) => setNewCategory(e.target.value)}
+                            className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 focus:outline-none cursor-pointer"
+                          >
+                            {allCategoriesForForm.map((cat, idx) => (
+                              <option key={idx} value={cat}>{cat}</option>
+                            ))}
+                          </select>
+                       </div>
+                       
+                       <input type="url" value={newAffiliateLink} onChange={(e) => setNewAffiliateLink(e.target.value)} placeholder="Affiliate Link (Optional)" className="w-full bg-black/50 border border-[#FF9900]/30 rounded-lg px-4 py-2.5 text-white focus:border-[#FF9900] focus:outline-none" />
 
-                     <button type="submit" disabled={isUploading} className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 py-3 rounded-lg font-bold text-white mt-2">
-                        {isUploading ? "Uploading..." : "Publish Product"}
-                     </button>
-                  </form>
-               </div>
-            </div>
-         )}
-
-         {/* Checkout Modal */}
-         {isModalOpen && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-               {/* ... (বাকি চেকআউট কোড হুবহু আগের মতো) ... */}
-               <div className="bg-[#050810]/90 border border-purple-500/30 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-[0_0_40px_rgba(168,85,247,0.2)] relative text-left max-h-[90vh] overflow-y-auto custom-scrollbar">
-                  <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white rounded-full w-8 h-8 flex items-center justify-center">✕</button>
-                  <h3 className="text-2xl font-bold text-purple-400 mb-1">Checkout</h3>
-                  <p className="text-gray-300 text-sm mb-6 flex items-center gap-2">
-                    Ordering: <span className="text-cyan-400 font-semibold bg-cyan-400/10 px-2 py-1 rounded">{selectedProduct}</span>
-                    <span className="text-purple-400 ml-2">({selectedCurrency} {selectedPrice})</span>
-                  </p>
-                  
-                  {isSubmitted ? (
-                     <div className="text-center py-8">
-                        <div className="text-6xl mb-4 animate-bounce">🚀</div>
-                        <h4 className="text-xl font-bold text-green-400 mb-2">Order Placed!</h4>
-                        <p className="text-xs text-gray-400 mt-2">
-                          Note: Please check your Spam/Promotions folder if you don't see the confirmation email in your Inbox.
-                        </p>
-                     </div>
-                  ) : (
-                     <form onSubmit={handleOrderSubmit} className="flex flex-col gap-4">
-                        <input type="text" value={session?.user?.name || ""} disabled className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-gray-400 cursor-not-allowed" />
-                        <input required type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-purple-500 focus:outline-none" placeholder="Phone Number" />
-                        <textarea required value={address} onChange={(e) => setAddress(e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white h-20 resize-none focus:border-purple-500 focus:outline-none" placeholder="Delivery Address"></textarea>
-                        
-                        <div className="bg-[#0a0f1a] p-5 rounded-lg border border-gray-800">
-                           <p className="text-xs text-gray-400 mb-3 text-center">Select Payment Method</p>
-                           
-                           <div className="flex gap-3 mb-5">
-                              <button 
-                                type="button" 
-                                onClick={() => { setPaymentMethod('bkash'); setCopied(false); }} 
-                                className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all border flex items-center justify-center gap-2 ${paymentMethod === 'bkash' ? 'bg-[#E2136E]/10 text-[#E2136E] border-[#E2136E]' : 'bg-transparent text-gray-500 border-gray-700 hover:border-gray-500'}`}
-                              >
-                                <img src="/bkash.png" alt="bKash" className="w-5 h-5 rounded-sm object-cover" />
-                                bKash
-                              </button>
-                              
-                              <button 
-                                type="button" 
-                                onClick={() => { setPaymentMethod('rocket'); setCopied(false); }} 
-                                className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all border flex items-center justify-center gap-2 ${paymentMethod === 'rocket' ? 'bg-[#8C3494]/10 text-[#8C3494] border-[#8C3494]' : 'bg-transparent text-gray-500 border-gray-700 hover:border-gray-500'}`}
-                              >
-                                <img src="/rocket.png" alt="Rocket" className="w-5 h-5 rounded-sm object-cover" />
-                                Rocket
-                              </button>
-                           </div>
-                           
-                           <div className="flex items-center justify-center gap-3 mb-5 bg-black/40 py-3 rounded-lg border border-white/5">
-                             <p className="text-sm">
-                               Send Money to: <strong className={`text-lg tracking-wider ${paymentMethod === 'bkash' ? "text-[#E2136E]" : "text-[#8C3494]"}`}>
-                                 {activeNumber}
-                               </strong>
-                             </p>
-                             <button 
-                               type="button" 
-                               onClick={handleCopyNumber}
-                               className="p-1.5 rounded-md hover:bg-white/10 transition-colors text-gray-400 hover:text-white"
-                               title="Copy Number"
-                             >
-                               {copied ? (
-                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                               ) : (
-                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                               )}
-                             </button>
-                           </div>
-                           
-                           <div className="text-left relative">
-                             <p className="text-[11px] text-cyan-400/80 mb-2 font-medium px-1">
-                               * You will get the transaction id after sending money. Copy that TrxID and paste it below.
-                             </p>
-                             <input 
-                               required 
-                               type="text" 
-                               value={trxId} 
-                               onChange={(e) => setTrxId(e.target.value)} 
-                               className={`w-full bg-black/50 border rounded-lg px-4 py-3 text-white focus:outline-none font-mono text-center tracking-widest uppercase transition-colors ${paymentMethod === 'bkash' ? 'border-[#E2136E]/40 focus:border-[#E2136E]' : 'border-[#8C3494]/40 focus:border-[#8C3494]'}`} 
-                               placeholder="e.g. 8N7A6B5C4D" 
+                       <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+                         <p className="text-xs text-gray-400 mb-3">Select Button Color:</p>
+                         <div className="flex flex-wrap gap-3 justify-center">
+                           {colorOptions.map((color, index) => (
+                             <button
+                               key={index}
+                               type="button"
+                               onClick={() => setNewButtonColor(color.class)}
+                               style={{ backgroundColor: color.hex }}
+                               className={`w-8 h-8 rounded-full border-2 transition-transform ${newButtonColor === color.class ? 'border-white scale-125 shadow-[0_0_10px_rgba(255,255,255,0.8)]' : 'border-transparent hover:scale-110'}`}
+                               title={color.name}
                              />
-                           </div>
-                        </div>
-                        
-                        <button type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-purple-500 to-cyan-500 py-3.5 rounded-lg font-bold text-white mt-2 shadow-[0_0_15px_rgba(168,85,247,0.4)] hover:shadow-[0_0_25px_rgba(34,211,238,0.5)] transition-all">
-                           {isLoading ? "Processing..." : "Confirm Order"}
-                        </button>
-                     </form>
-                  )}
-               </div>
-            </div>
-         )}
+                           ))}
+                         </div>
+                       </div>
+
+                       <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+                         <p className="text-xs text-gray-400 mb-2">Upload Product Image:</p>
+                         <input required type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] || null)} className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-cyan-500/20 file:text-cyan-400 hover:file:bg-cyan-500/30 cursor-pointer" />
+                       </div>
+
+                       <motion.button 
+                         whileTap={{ scale: 0.95 }}
+                         type="submit" disabled={isUploading} className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 py-3 rounded-lg font-bold text-white mt-2">
+                          {isUploading ? "Uploading..." : "Publish Product"}
+                       </motion.button>
+                    </form>
+                 </motion.div>
+              </motion.div>
+           )}
+         </AnimatePresence>
+
+         {/* 🌟 Checkout Modal এ AnimatePresence যুক্ত করা হলো 🌟 */}
+         <AnimatePresence>
+           {isModalOpen && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
+              >
+                 <motion.div 
+                   initial={{ scale: 0.8, opacity: 0, y: 50 }}
+                   animate={{ scale: 1, opacity: 1, y: 0 }}
+                   exit={{ scale: 0.8, opacity: 0, y: 50 }}
+                   transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                   className="bg-[#050810]/90 border border-purple-500/30 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-[0_0_40px_rgba(168,85,247,0.2)] relative text-left max-h-[90vh] overflow-y-auto custom-scrollbar"
+                 >
+                    <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white rounded-full w-8 h-8 flex items-center justify-center">✕</button>
+                    <h3 className="text-2xl font-bold text-purple-400 mb-1">Checkout</h3>
+                    <p className="text-gray-300 text-sm mb-6 flex items-center gap-2">
+                      Ordering: <span className="text-cyan-400 font-semibold bg-cyan-400/10 px-2 py-1 rounded">{selectedProduct}</span>
+                      <span className="text-purple-400 ml-2">({selectedCurrency} {selectedPrice})</span>
+                    </p>
+                    
+                    {isSubmitted ? (
+                       <motion.div 
+                         initial={{ opacity: 0, scale: 0.8 }}
+                         animate={{ opacity: 1, scale: 1 }}
+                         className="text-center py-8"
+                       >
+                          <motion.div 
+                            animate={{ y: [0, -20, 0] }}
+                            transition={{ repeat: Infinity, duration: 1.5 }}
+                            className="text-6xl mb-4"
+                          >
+                            🚀
+                          </motion.div>
+                          <h4 className="text-xl font-bold text-green-400 mb-2">Order Placed!</h4>
+                          <p className="text-xs text-gray-400 mt-2">
+                            Note: Please check your Spam/Promotions folder if you don't see the confirmation email in your Inbox.
+                          </p>
+                       </motion.div>
+                    ) : (
+                       <form onSubmit={handleOrderSubmit} className="flex flex-col gap-4">
+                          <input type="text" value={session?.user?.name || ""} disabled className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-gray-400 cursor-not-allowed" />
+                          <input required type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-purple-500 focus:outline-none" placeholder="Phone Number" />
+                          <textarea required value={address} onChange={(e) => setAddress(e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white h-20 resize-none focus:border-purple-500 focus:outline-none" placeholder="Delivery Address"></textarea>
+                          
+                          <div className="bg-[#0a0f1a] p-5 rounded-lg border border-gray-800">
+                             <p className="text-xs text-gray-400 mb-3 text-center">Select Payment Method</p>
+                             
+                             <div className="flex gap-3 mb-5">
+                                <motion.button 
+                                  whileTap={{ scale: 0.95 }}
+                                  type="button" 
+                                  onClick={() => { setPaymentMethod('bkash'); setCopied(false); }} 
+                                  className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all border flex items-center justify-center gap-2 ${paymentMethod === 'bkash' ? 'bg-[#E2136E]/10 text-[#E2136E] border-[#E2136E]' : 'bg-transparent text-gray-500 border-gray-700 hover:border-gray-500'}`}
+                                >
+                                  <img src="/bkash.png" alt="bKash" className="w-5 h-5 rounded-sm object-cover" />
+                                  bKash
+                                </motion.button>
+                                
+                                <motion.button 
+                                  whileTap={{ scale: 0.95 }}
+                                  type="button" 
+                                  onClick={() => { setPaymentMethod('rocket'); setCopied(false); }} 
+                                  className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all border flex items-center justify-center gap-2 ${paymentMethod === 'rocket' ? 'bg-[#8C3494]/10 text-[#8C3494] border-[#8C3494]' : 'bg-transparent text-gray-500 border-gray-700 hover:border-gray-500'}`}
+                                >
+                                  <img src="/rocket.png" alt="Rocket" className="w-5 h-5 rounded-sm object-cover" />
+                                  Rocket
+                                </motion.button>
+                             </div>
+                             
+                             <div className="flex items-center justify-center gap-3 mb-5 bg-black/40 py-3 rounded-lg border border-white/5">
+                               <p className="text-sm">
+                                 Send Money to: <strong className={`text-lg tracking-wider ${paymentMethod === 'bkash' ? "text-[#E2136E]" : "text-[#8C3494]"}`}>
+                                   {activeNumber}
+                                 </strong>
+                               </p>
+                               <button 
+                                 type="button" 
+                                 onClick={handleCopyNumber}
+                                 className="p-1.5 rounded-md hover:bg-white/10 transition-colors text-gray-400 hover:text-white"
+                                 title="Copy Number"
+                               >
+                                 {copied ? (
+                                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                 ) : (
+                                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                 )}
+                               </button>
+                             </div>
+                             
+                             <div className="text-left relative">
+                               <p className="text-[11px] text-cyan-400/80 mb-2 font-medium px-1">
+                                 * You will get the transaction id after sending money. Copy that TrxID and paste it below.
+                               </p>
+                               <input 
+                                 required 
+                                 type="text" 
+                                 value={trxId} 
+                                 onChange={(e) => setTrxId(e.target.value)} 
+                                 className={`w-full bg-black/50 border rounded-lg px-4 py-3 text-white focus:outline-none font-mono text-center tracking-widest uppercase transition-colors ${paymentMethod === 'bkash' ? 'border-[#E2136E]/40 focus:border-[#E2136E]' : 'border-[#8C3494]/40 focus:border-[#8C3494]'}`} 
+                                 placeholder="e.g. 8N7A6B5C4D" 
+                               />
+                             </div>
+                          </div>
+                          
+                          <motion.button 
+                            whileTap={{ scale: 0.95 }}
+                            type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-purple-500 to-cyan-500 py-3.5 rounded-lg font-bold text-white mt-2 shadow-[0_0_15px_rgba(168,85,247,0.4)] hover:shadow-[0_0_25px_rgba(34,211,238,0.5)] transition-all"
+                          >
+                             {isLoading ? "Processing..." : "Confirm Order"}
+                          </motion.button>
+                       </form>
+                    )}
+                 </motion.div>
+              </motion.div>
+           )}
+         </AnimatePresence>
     </main>
   );
 }
