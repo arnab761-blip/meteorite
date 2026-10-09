@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion"; // 🌟 Framer motion ইমপোর্ট করা হলো
 
 export default function Gallery() {
   const { data: session } = useSession();
@@ -11,13 +12,12 @@ export default function Gallery() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   
-  // 🌟 Cloudinary এর জন্য নতুন স্টেট 🌟
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState("");
   
   const [isUploading, setIsUploading] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [selectedPhoto, setSelectedPhoto] = useState<any>(null); // ফুল স্ক্রিন ছবির জন্য
+  const [selectedPhoto, setSelectedPhoto] = useState<any>(null); 
 
   const fetchPhotos = async () => {
     const res = await fetch('/api/gallery');
@@ -30,9 +30,9 @@ export default function Gallery() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file); // মূল ফাইলটা সেভ রাখলাম Cloudinary-তে পাঠানোর জন্য
+      setImageFile(file); 
       const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result as string); // শুধু প্রিভিউ দেখানোর জন্য Base64
+      reader.onloadend = () => setImagePreview(reader.result as string); 
       reader.readAsDataURL(file);
     }
   };
@@ -45,19 +45,17 @@ export default function Gallery() {
     setIsUploading(true);
 
     try {
-      // 🚀 ১. প্রথমে Cloudinary-তে ছবি আপলোড 🚀
       const formData = new FormData();
       formData.append("file", imageFile);
-      formData.append("upload_preset", "meteorite_gallery"); // ⚠️ এখানে তোর Preset Name দে (যেমন: meteorite_gallery)
+      formData.append("upload_preset", "meteorite_gallery"); 
 
       const cloudRes = await fetch(
-        "https://api.cloudinary.com/v1_1/rgnyt2gl/image/upload", // ⚠️ এখানে তোর Cloud Name দে
+        "https://api.cloudinary.com/v1_1/rgnyt2gl/image/upload", 
         { method: "POST", body: formData }
       );
       const cloudData = await cloudRes.json();
-      const imageUrl = cloudData.secure_url; // Cloudinary থেকে পাওয়া পার্মানেন্ট লিংক
+      const imageUrl = cloudData.secure_url; 
 
-      // 🚀 ২. লিংক পাওয়ার পর MongoDB-তে ডাটা সেভ 🚀
       if (imageUrl) {
         const res = await fetch('/api/gallery', {
           method: 'POST',
@@ -68,7 +66,7 @@ export default function Gallery() {
             userImage: session.user?.image || "",
             title, 
             description, 
-            image: imageUrl // Base64 এর বদলে এখন Cloudinary এর লিংক যাবে!
+            image: imageUrl 
           }),
         });
         if (res.ok) {
@@ -99,39 +97,62 @@ export default function Gallery() {
 
   return (
     <main className="flex flex-col items-center pt-32 px-4 min-h-screen">
-      <div className="backdrop-blur-md bg-[#050810]/80 p-6 md:p-10 rounded-3xl border border-white/10 w-full max-w-7xl shadow-2xl mt-10 mb-20 relative">
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
+        className="backdrop-blur-md bg-[#050810]/80 p-6 md:p-10 rounded-3xl border border-white/10 w-full max-w-7xl shadow-2xl mt-10 mb-20 relative"
+      >
         
         <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4 text-center md:text-left">
           <div>
             <h2 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">Astrophotography</h2>
             <p className="text-gray-400 text-sm mt-1">Share your cosmic captures with the universe.</p>
           </div>
-          <button 
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => session ? setShowForm(!showForm) : router.push("/login")}
             className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-2.5 rounded-full font-bold transition-all shadow-[0_0_15px_rgba(34,211,238,0.3)]"
           >
             {showForm ? "Cancel Upload" : "Upload Photo 🚀"}
-          </button>
+          </motion.button>
         </div>
 
-        {showForm && (
-          <form onSubmit={handleUpload} className="bg-black/50 p-6 rounded-2xl border border-cyan-500/30 mb-10 max-w-2xl mx-auto shadow-lg flex flex-col gap-4 animate-fade-in">
-            <input required type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Photo Title (e.g. Orion Nebula)" className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-cyan-500 focus:outline-none" />
-            <textarea required value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Camera details, location, or description..." className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-cyan-500 focus:outline-none h-24 resize-none"></textarea>
-            <input required type="file" accept="image/*" onChange={handleImageChange} className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-cyan-500/20 file:text-cyan-400 hover:file:bg-cyan-500/30 cursor-pointer" />
-            {imagePreview && <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover rounded-lg border border-white/10" />}
-            <button type="submit" disabled={isUploading} className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 py-3 rounded-lg font-bold text-white mt-2 transition-all">
-              {isUploading ? "Uploading to Space..." : "Publish to Gallery"}
-            </button>
-          </form>
-        )}
+        {/* 🌟 আপলোড ফর্ম অ্যানিমেশন 🌟 */}
+        <AnimatePresence>
+          {showForm && (
+            <motion.form 
+              initial={{ opacity: 0, height: 0, scale: 0.95 }}
+              animate={{ opacity: 1, height: "auto", scale: 1 }}
+              exit={{ opacity: 0, height: 0, scale: 0.95 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              onSubmit={handleUpload} 
+              className="bg-black/50 p-6 rounded-2xl border border-cyan-500/30 mb-10 max-w-2xl mx-auto shadow-lg flex flex-col gap-4 overflow-hidden"
+            >
+              <input required type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Photo Title (e.g. Orion Nebula)" className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-cyan-500 focus:outline-none" />
+              <textarea required value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Camera details, location, or description..." className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-cyan-500 focus:outline-none h-24 resize-none"></textarea>
+              <input required type="file" accept="image/*" onChange={handleImageChange} className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-cyan-500/20 file:text-cyan-400 hover:file:bg-cyan-500/30 cursor-pointer" />
+              {imagePreview && <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover rounded-lg border border-white/10" />}
+              <motion.button whileTap={{ scale: 0.95 }} type="submit" disabled={isUploading} className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 py-3 rounded-lg font-bold text-white mt-2 transition-all">
+                {isUploading ? "Uploading to Space..." : "Publish to Gallery"}
+              </motion.button>
+            </motion.form>
+          )}
+        </AnimatePresence>
 
+        {/* 🌟 গ্রিড ইমেজ অ্যানিমেশন (Stagger) 🌟 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {photos.map((photo: any) => (
-            <div 
+          {photos.map((photo: any, index: number) => (
+            <motion.div 
               key={photo._id} 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-20px" }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+              whileHover={{ scale: 1.03 }}
               onClick={() => handleViewPhoto(photo)}
-              className="group relative rounded-2xl overflow-hidden border border-white/10 bg-black/40 aspect-[4/5] shadow-lg flex flex-col cursor-pointer transition-transform hover:-translate-y-2"
+              className="group relative rounded-2xl overflow-hidden border border-white/10 bg-black/40 aspect-[4/5] shadow-lg flex flex-col cursor-pointer transition-transform"
             >
               <img src={photo.image} alt={photo.title} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
               
@@ -148,45 +169,59 @@ export default function Gallery() {
                   <p className="text-xs text-gray-300 truncate">{photo.userName}</p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
-        {selectedPhoto && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-sm p-4 animate-fade-in">
-            <div className="relative max-w-4xl w-full bg-[#050810] border border-cyan-500/30 rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(34,211,238,0.2)] flex flex-col md:flex-row max-h-[90vh]">
-              <button onClick={() => setSelectedPhoto(null)} className="absolute top-4 right-4 z-10 bg-black/50 hover:bg-red-500 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors">✕</button>
-              
-              <div className="w-full md:w-2/3 bg-black flex items-center justify-center">
-                <img src={selectedPhoto.image} alt={selectedPhoto.title} className="max-w-full max-h-[60vh] md:max-h-[90vh] object-contain" />
-              </div>
-              
-              <div className="w-full md:w-1/3 p-6 md:p-8 flex flex-col justify-center overflow-y-auto bg-gradient-to-b from-[#050810] to-black">
-                <div className="flex items-center gap-3 mb-6 pb-6 border-b border-white/10">
-                  <div className="w-12 h-12 rounded-full bg-gray-700 overflow-hidden border-2 border-cyan-500/50">
-                    {selectedPhoto.userImage ? <img src={selectedPhoto.userImage} alt="User" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-lg font-bold">{selectedPhoto.userName.charAt(0)}</div>}
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-white text-lg">{selectedPhoto.userName}</h3>
-                    <p className="text-xs text-cyan-400 font-medium">Astrophotographer</p>
-                  </div>
+        {/* 🌟 ফুলস্ক্রিন ফটো ভিউ অ্যানিমেশন 🌟 */}
+        <AnimatePresence>
+          {selectedPhoto && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-sm p-4"
+            >
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="relative max-w-4xl w-full bg-[#050810] border border-cyan-500/30 rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(34,211,238,0.2)] flex flex-col md:flex-row max-h-[90vh]"
+              >
+                <button onClick={() => setSelectedPhoto(null)} className="absolute top-4 right-4 z-10 bg-black/50 hover:bg-red-500 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors">✕</button>
+                
+                <div className="w-full md:w-2/3 bg-black flex items-center justify-center p-2">
+                  <img src={selectedPhoto.image} alt={selectedPhoto.title} className="max-w-full max-h-[60vh] md:max-h-[90vh] object-contain rounded-lg" />
                 </div>
                 
-                <h2 className="text-2xl font-bold text-cyan-300 mb-3">{selectedPhoto.title}</h2>
-                <p className="text-gray-300 text-sm leading-relaxed mb-6">{selectedPhoto.description}</p>
-                
-                <div className="mt-auto pt-6 flex items-center justify-between border-t border-white/10">
-                   <div className="flex items-center gap-2 text-cyan-400 font-bold bg-cyan-500/10 px-4 py-2 rounded-xl border border-cyan-500/20">
-                     👁️ {selectedPhoto.views || 0} Views
-                   </div>
-                   <p className="text-xs text-gray-500">{new Date(selectedPhoto.createdAt).toLocaleDateString()}</p>
+                <div className="w-full md:w-1/3 p-6 md:p-8 flex flex-col justify-center overflow-y-auto bg-gradient-to-b from-[#050810] to-black">
+                  <div className="flex items-center gap-3 mb-6 pb-6 border-b border-white/10">
+                    <div className="w-12 h-12 rounded-full bg-gray-700 overflow-hidden border-2 border-cyan-500/50">
+                      {selectedPhoto.userImage ? <img src={selectedPhoto.userImage} alt="User" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-lg font-bold">{selectedPhoto.userName.charAt(0)}</div>}
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-white text-lg">{selectedPhoto.userName}</h3>
+                      <p className="text-xs text-cyan-400 font-medium">Astrophotographer</p>
+                    </div>
+                  </div>
+                  
+                  <h2 className="text-2xl font-bold text-cyan-300 mb-3">{selectedPhoto.title}</h2>
+                  <p className="text-gray-300 text-sm leading-relaxed mb-6">{selectedPhoto.description}</p>
+                  
+                  <div className="mt-auto pt-6 flex items-center justify-between border-t border-white/10">
+                     <div className="flex items-center gap-2 text-cyan-400 font-bold bg-cyan-500/10 px-4 py-2 rounded-xl border border-cyan-500/20">
+                       👁️ {selectedPhoto.views || 0} Views
+                     </div>
+                     <p className="text-xs text-gray-500">{new Date(selectedPhoto.createdAt).toLocaleDateString()}</p>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        )}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      </div>
+      </motion.div>
     </main>
   );
 }

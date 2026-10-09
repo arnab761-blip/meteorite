@@ -2,13 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [orders, setOrders] = useState([]);
 
-  // 🌟 ডাটাবেস থেকে অর্ডারগুলো ফেচ করা 🌟
   useEffect(() => {
     if (status === "authenticated" && session?.user?.email === "geminiaipro42@gmail.com") {
       fetch('/api/orders')
@@ -20,42 +20,90 @@ export default function AdminDashboard() {
   }, [status, session]);
 
   if (status === "loading") {
-    return <div className="min-h-screen flex items-center justify-center text-purple-400 font-bold text-xl">Verifying Security Clearance... 🚀</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center text-purple-400 font-bold text-xl">
+        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }} className="mr-3 text-3xl">
+          🛰️
+        </motion.div>
+        Verifying Security Clearance...
+      </div>
+    );
   }
 
-  // 🌟 তুই ছাড়া অন্য কেউ ঢুকলে তাকে বের করে দেবে 🌟
   if (!session || session.user?.email !== "geminiaipro42@gmail.com") {
     return (
       <main className="min-h-screen flex items-center justify-center px-4 text-center">
-        <div className="bg-red-500/10 border border-red-500/50 p-8 md:p-12 rounded-3xl max-w-md w-full shadow-[0_0_40px_rgba(239,68,68,0.2)]">
-          <div className="text-6xl mb-4 animate-bounce">⛔</div>
+        <motion.div 
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 300, damping: 15 }}
+          className="bg-red-500/10 border border-red-500/50 p-8 md:p-12 rounded-3xl max-w-md w-full shadow-[0_0_40px_rgba(239,68,68,0.2)]"
+        >
+          <motion.div 
+            animate={{ rotate: [-10, 10, -10, 10, 0] }}
+            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+            className="text-6xl mb-4"
+          >
+            ⛔
+          </motion.div>
           <h2 className="text-2xl font-bold text-red-400 mb-2">Access Denied!</h2>
           <p className="text-gray-300 text-sm mb-8">Only the Supreme Commander can access this sector.</p>
-          <button onClick={() => router.push('/')} className="bg-red-500 hover:bg-red-600 text-white px-8 py-2.5 rounded-full font-bold transition-all shadow-lg">
+          <motion.button 
+            whileHover={{ scale: 1.05, boxShadow: "0px 0px 15px rgba(239,68,68,0.5)" }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => router.push('/')} 
+            className="bg-red-500 hover:bg-red-600 text-white px-8 py-2.5 rounded-full font-bold transition-colors"
+          >
             Return to Base
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
       </main>
     );
   }
 
+  const tableRowVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: { opacity: 1, x: 0 }
+  };
+
   return (
     <main className="flex flex-col items-center pt-32 px-4 min-h-screen">
-      <div className="backdrop-blur-md bg-[#050810]/80 p-6 md:p-10 rounded-3xl border border-purple-500/30 w-full max-w-7xl shadow-[0_0_30px_rgba(168,85,247,0.15)] mt-10 mb-20">
+      <motion.div 
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
+        className="backdrop-blur-md bg-[#050810]/80 p-6 md:p-10 rounded-3xl border border-purple-500/30 w-full max-w-7xl shadow-[0_0_30px_rgba(168,85,247,0.15)] mt-10 mb-20"
+      >
         
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-white/10 pb-6 gap-4 text-center md:text-left">
           <div>
-            <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
+            <motion.h2 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400"
+            >
               Admin Control Center
-            </h2>
-            <p className="text-gray-400 text-sm mt-1">Welcome back, Commander Arnab.</p>
+            </motion.h2>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-gray-400 text-sm mt-1"
+            >
+              Welcome back, Commander Arnab.
+            </motion.p>
           </div>
-          <div className="bg-purple-500/20 border border-purple-500/50 px-6 py-2.5 rounded-xl text-purple-300 font-bold shadow-lg">
+          <motion.div 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", delay: 0.4 }}
+            className="bg-purple-500/20 border border-purple-500/50 px-6 py-2.5 rounded-xl text-purple-300 font-bold shadow-lg"
+          >
             Total Orders: {orders.length}
-          </div>
+          </motion.div>
         </div>
 
-        {/* 🌟 অর্ডারের টেবিল 🌟 */}
         <div className="overflow-x-auto rounded-xl border border-white/10 bg-black/40">
           <table className="w-full text-left min-w-[800px]">
             <thead className="bg-white/5 text-cyan-400 text-sm uppercase tracking-wider">
@@ -67,41 +115,57 @@ export default function AdminDashboard() {
                 <th className="p-4 font-semibold">Date</th>
               </tr>
             </thead>
-            <tbody className="text-sm text-gray-300 divide-y divide-white/5">
-              {orders.map((order: any) => (
-                <tr key={order._id} className="hover:bg-white/5 transition-colors">
+            <motion.tbody 
+              initial="hidden"
+              animate="visible"
+              transition={{ staggerChildren: 0.1 }}
+              className="text-sm text-gray-300 divide-y divide-white/5"
+            >
+              {orders.map((order: any, index: number) => (
+                <motion.tr 
+                  variants={tableRowVariants}
+                  transition={{ type: "spring", stiffness: 300, damping: 24 }}
+                  key={order._id} 
+                  className="hover:bg-white/5 transition-colors group cursor-default"
+                >
                   <td className="p-4">
-                    <p className="font-bold text-white text-base">{order.name}</p>
+                    <p className="font-bold text-white text-base group-hover:text-cyan-300 transition-colors">{order.name}</p>
                     <p className="text-xs text-gray-400 mt-1">{order.userEmail}</p>
                     <p className="text-xs text-purple-400 font-medium mt-0.5">{order.phone}</p>
                   </td>
                   <td className="p-4">
-                    <p className="font-semibold text-cyan-300 bg-cyan-400/10 inline-block px-2 py-1 rounded text-xs mb-1">{order.productName}</p>
+                    <p className="font-semibold text-cyan-300 bg-cyan-400/10 inline-block px-2 py-1 rounded text-xs mb-1 border border-transparent group-hover:border-cyan-500/30 transition-all">{order.productName}</p>
                     <p className="text-green-400 font-bold">৳ {order.price}</p>
                   </td>
                   <td className="p-4 max-w-[250px]">
                     <p className="line-clamp-2 text-xs leading-relaxed">{order.address}</p>
                   </td>
                   <td className="p-4">
-                    <p className="font-mono text-purple-300 bg-purple-500/10 inline-block px-2 py-1 rounded text-xs border border-purple-500/20">
+                    <p className="font-mono text-purple-300 bg-purple-500/10 inline-block px-2 py-1 rounded text-xs border border-purple-500/20 group-hover:border-purple-500/50 transition-all">
                       {order.trxId}
                     </p>
                   </td>
                   <td className="p-4 text-xs text-gray-400 font-medium">
                     {new Date(order.createdAt).toLocaleDateString('en-GB')}
                   </td>
-                </tr>
+                </motion.tr>
               ))}
-            </tbody>
+            </motion.tbody>
           </table>
+          
           {orders.length === 0 && (
-            <div className="text-center py-16 text-gray-500 font-medium">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="text-center py-16 text-gray-500 font-medium"
+            >
               No orders received yet. Stay tuned! 🛰️
-            </div>
+            </motion.div>
           )}
         </div>
 
-      </div>
+      </motion.div>
     </main>
   );
 }
