@@ -29,6 +29,7 @@ export default function Shop() {
   const adminEmail = "geminiaipro42@gmail.com";
 
   const [productsList, setProductsList] = useState([]);
+  const [isLoadingData, setIsLoadingData] = useState(true); 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   
   const [newProductName, setNewProductName] = useState("");
@@ -58,12 +59,15 @@ export default function Shop() {
   const activeNumber = paymentMethod === 'bkash' ? '01780692994' : '017190223709';
 
   const fetchProducts = async () => {
+    setIsLoadingData(true); 
     try {
       const res = await fetch('/api/products');
       const data = await res.json();
       if (data.products) setProductsList(data.products);
     } catch (error) {
       console.log("Error loading products", error);
+    } finally {
+      setIsLoadingData(false); 
     }
   };
 
@@ -179,15 +183,14 @@ export default function Shop() {
     }
   };
 
-  // 🌟 প্রোডাক্ট কার্ডে অ্যানিমেশন যুক্ত করা হলো 🌟
   const renderProductCard = (product: any, index: number) => (
     <motion.div 
       key={product._id} 
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }} 
-      transition={{ duration: 0.4, delay: index * 0.1 }} // Stagger effect
-      whileHover={{ scale: 1.05 }} // হোভার ইফেক্ট
+      transition={{ duration: 0.4, delay: index * 0.1 }} 
+      whileHover={{ scale: 1.05 }} 
       className="bg-white/10 p-4 md:p-5 rounded-xl border border-white/10 w-64 flex flex-col text-left cursor-pointer"
     >
         <div className="w-full h-48 bg-black/40 rounded-lg mb-4 overflow-hidden relative group">
@@ -233,7 +236,6 @@ export default function Shop() {
     <main className="flex flex-col items-center pt-32 px-4 text-center min-h-screen">
          <div className="backdrop-blur-md bg-white/5 p-6 md:p-10 rounded-3xl border border-white/10 max-w-6xl w-full shadow-2xl mt-10 mb-20 relative">
              
-             {/* হেডার সেকশন */}
              <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                <div className="text-left">
                  <h2 className="text-3xl md:text-4xl font-bold mb-2 text-purple-400">Meteorite Shop</h2>
@@ -252,7 +254,6 @@ export default function Shop() {
                )}
              </div>
 
-             {/* ক্যাটাগরি মিনিবার */}
              {productsList.length > 0 && (
                <div className="sticky top-20 z-40 w-full flex flex-wrap justify-center md:justify-start gap-3 bg-black/50 backdrop-blur-lg py-4 px-6 rounded-2xl border border-white/10 mb-12 shadow-lg">
                  {mainCategories.map(cat => (
@@ -275,12 +276,35 @@ export default function Shop() {
                </div>
              )}
              
-             {productsList.length === 0 && <p className="text-gray-400 mb-10">No products available yet. Add some!</p>}
-
-             {/* মূল ক্যাটাগরি প্রোডাক্টস */}
-             {productsList.length > 0 && (
+             {isLoadingData ? (
+                <div className="flex flex-col items-center justify-center py-20 w-full">
+                   <motion.div 
+                     animate={{ rotate: 360 }} 
+                     transition={{ repeat: Infinity, duration: 2, ease: "linear" }} 
+                     className="text-5xl mb-4"
+                   >
+                     🛸
+                   </motion.div>
+                   <p className="text-cyan-400 font-bold animate-pulse text-lg tracking-widest">
+                     Scanning the cosmos for products...
+                   </p>
+                   
+                   <div className="flex flex-wrap justify-center md:justify-start gap-6 mt-12 opacity-40">
+                     {[1, 2, 3, 4].map((n) => (
+                       <div key={n} className="bg-white/5 p-4 md:p-5 rounded-xl border border-white/5 w-64 h-80 animate-pulse flex flex-col">
+                         <div className="w-full h-48 bg-black/30 rounded-lg mb-4"></div>
+                         <div className="h-5 bg-white/10 rounded w-3/4 mb-3"></div>
+                         <div className="h-4 bg-white/10 rounded w-1/2 mb-auto"></div>
+                         <div className="h-10 bg-white/10 rounded w-full mt-4"></div>
+                       </div>
+                     ))}
+                   </div>
+                </div>
+             ) : productsList.length === 0 ? (
+                <p className="text-gray-400 mb-10">No products available yet. Add some!</p>
+             ) : (
                 <div className="w-full flex flex-col gap-14">
-                  {mainCategories.map((category, catIndex) => {
+                  {mainCategories.map((category) => {
                       const categoryProducts = productsList.filter((p: any) => p.category === category);
                       if (categoryProducts.length === 0) return null; 
                       
@@ -298,8 +322,7 @@ export default function Shop() {
                 </div>
              )}
 
-             {/* Others প্রোডাক্টস */}
-             {otherProducts.length > 0 && (
+             {!isLoadingData && otherProducts.length > 0 && (
                  <div id="others" className="w-full text-left mt-16 pt-12 border-t border-white/10 scroll-mt-44">
                     <h3 className="text-2xl font-bold text-white mb-8 border-l-4 border-purple-500 pl-3">Other Products</h3>
                     <div className="flex flex-wrap justify-center md:justify-start gap-6">
@@ -309,7 +332,6 @@ export default function Shop() {
              )}
          </div>
 
-         {/* 🌟 Add Product Modal এ AnimatePresence যুক্ত করা হলো 🌟 */}
          <AnimatePresence>
            {isAddModalOpen && (
               <motion.div 
@@ -390,7 +412,6 @@ export default function Shop() {
            )}
          </AnimatePresence>
 
-         {/* 🌟 Checkout Modal এ AnimatePresence যুক্ত করা হলো 🌟 */}
          <AnimatePresence>
            {isModalOpen && (
               <motion.div 

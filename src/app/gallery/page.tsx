@@ -2,13 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion"; // 🌟 Framer motion ইমপোর্ট করা হলো
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Gallery() {
   const { data: session } = useSession();
   const router = useRouter();
 
   const [photos, setPhotos] = useState([]);
+  const [isLoadingData, setIsLoadingData] = useState(true); // 🌟 নতুন স্টেট: ডাটা লোডিং ট্র্যাক করার জন্য
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   
@@ -20,12 +21,21 @@ export default function Gallery() {
   const [selectedPhoto, setSelectedPhoto] = useState<any>(null); 
 
   const fetchPhotos = async () => {
-    const res = await fetch('/api/gallery');
-    const data = await res.json();
-    if (data.photos) setPhotos(data.photos);
+    setIsLoadingData(true); // 🌟 ফেচ শুরু হলে লোডিং true
+    try {
+      const res = await fetch('/api/gallery');
+      const data = await res.json();
+      if (data.photos) setPhotos(data.photos);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoadingData(false); // 🌟 ফেচ শেষ হলে লোডিং false
+    }
   };
 
-  useEffect(() => { fetchPhotos(); }, []);
+  useEffect(() => { 
+    fetchPhotos(); 
+  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -119,7 +129,6 @@ export default function Gallery() {
           </motion.button>
         </div>
 
-        {/* 🌟 আপলোড ফর্ম অ্যানিমেশন 🌟 */}
         <AnimatePresence>
           {showForm && (
             <motion.form 
@@ -141,39 +150,61 @@ export default function Gallery() {
           )}
         </AnimatePresence>
 
-        {/* 🌟 গ্রিড ইমেজ অ্যানিমেশন (Stagger) 🌟 */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {photos.map((photo: any, index: number) => (
-            <motion.div 
-              key={photo._id} 
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-20px" }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-              whileHover={{ scale: 1.03 }}
-              onClick={() => handleViewPhoto(photo)}
-              className="group relative rounded-2xl overflow-hidden border border-white/10 bg-black/40 aspect-[4/5] shadow-lg flex flex-col cursor-pointer transition-transform"
-            >
-              <img src={photo.image} alt={photo.title} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
+        {/* 🌟 লোডিং অ্যানিমেশন ও স্কেলিটন 🌟 */}
+        {isLoadingData ? (
+           <div className="flex flex-col items-center justify-center py-20 w-full">
+              <motion.div 
+                animate={{ rotate: [0, 15, -15, 0] }} 
+                transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }} 
+                className="text-5xl mb-4"
+              >
+                🔭
+              </motion.div>
+              <p className="text-purple-400 font-bold animate-pulse text-lg tracking-widest">
+                Scanning deep space for photos...
+              </p>
               
-              <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-cyan-400 flex items-center gap-1 border border-cyan-500/30">
-                👁️ {photo.views || 0}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-12 w-full opacity-40">
+                {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+                  <div key={n} className="bg-white/5 rounded-2xl border border-white/5 aspect-[4/5] animate-pulse"></div>
+                ))}
               </div>
-
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-4">
-                <h4 className="text-cyan-300 font-bold text-lg truncate">{photo.title}</h4>
-                <div className="flex items-center gap-2 mt-1">
-                  <div className="w-5 h-5 rounded-full bg-gray-700 overflow-hidden border border-white/20">
-                    {photo.userImage ? <img src={photo.userImage} alt="User" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-[10px] font-bold">{photo.userName.charAt(0)}</div>}
-                  </div>
-                  <p className="text-xs text-gray-300 truncate">{photo.userName}</p>
+           </div>
+        ) : photos.length === 0 ? (
+           <p className="text-center text-gray-500 py-10 w-full">No cosmic captures yet. Be the first to upload! 🚀</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {photos.map((photo: any, index: number) => (
+              <motion.div 
+                key={photo._id} 
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-20px" }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+                whileHover={{ scale: 1.03 }}
+                onClick={() => handleViewPhoto(photo)}
+                className="group relative rounded-2xl overflow-hidden border border-white/10 bg-black/40 aspect-[4/5] shadow-lg flex flex-col cursor-pointer transition-transform"
+              >
+                <img src={photo.image} alt={photo.title} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
+                
+                <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-cyan-400 flex items-center gap-1 border border-cyan-500/30">
+                  👁️ {photo.views || 0}
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
 
-        {/* 🌟 ফুলস্ক্রিন ফটো ভিউ অ্যানিমেশন 🌟 */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-4">
+                  <h4 className="text-cyan-300 font-bold text-lg truncate">{photo.title}</h4>
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className="w-5 h-5 rounded-full bg-gray-700 overflow-hidden border border-white/20">
+                      {photo.userImage ? <img src={photo.userImage} alt="User" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-[10px] font-bold">{photo.userName.charAt(0)}</div>}
+                    </div>
+                    <p className="text-xs text-gray-300 truncate">{photo.userName}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+
         <AnimatePresence>
           {selectedPhoto && (
             <motion.div 
