@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-// 🌟 ১০টি আলাদা কালার অপশন 🌟
 const colorOptions = [
   { name: "Default Purple", class: "bg-purple-500 hover:bg-purple-600 text-white", hex: "#a855f7" },
   { name: "Rokomari Orange", class: "bg-[#FF9900] hover:bg-[#E68A00] text-white", hex: "#FF9900" },
@@ -18,7 +17,6 @@ const colorOptions = [
   { name: "Slate", class: "bg-slate-600 hover:bg-slate-700 text-white", hex: "#475569" },
 ];
 
-// 🌟 ক্যাটাগরি লিস্ট 🌟
 const mainCategories = ["Books", "Telescopes & Gears", "Apparels"];
 const allCategoriesForForm = [...mainCategories, "Others"];
 
@@ -183,20 +181,24 @@ export default function Shop() {
     }
   };
 
+  // 🌟 ফিক্স: transform-gpu এবং will-change-transform অ্যাড করা হয়েছে, viewport margin দেওয়া হয়েছে 🌟
   const renderProductCard = (product: any, index: number) => (
     <motion.div 
       key={product._id} 
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }} 
+      viewport={{ once: true, margin: "50px" }} 
       transition={{ duration: 0.4, delay: index * 0.1 }} 
       whileHover={{ scale: 1.05 }} 
-      className="bg-white/10 p-4 md:p-5 rounded-xl border border-white/10 w-64 flex flex-col text-left cursor-pointer"
+      className="bg-white/10 p-4 md:p-5 rounded-xl border border-white/10 w-64 flex flex-col text-left cursor-pointer transform-gpu will-change-transform"
     >
         <div className="w-full h-48 bg-black/40 rounded-lg mb-4 overflow-hidden relative group">
+          {/* 🌟 ফিক্স: loading="lazy" decoding="async" দেওয়া হয়েছে 🌟 */}
           <img 
             src={product.image} 
             alt={product.name}
+            loading="lazy" 
+            decoding="async"
             className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
             onError={(e) => { e.currentTarget.style.display = 'none'; }}
           />
@@ -234,7 +236,7 @@ export default function Shop() {
 
   return (
     <main className="flex flex-col items-center pt-32 px-4 text-center min-h-screen">
-         <div className="backdrop-blur-md bg-white/5 p-6 md:p-10 rounded-3xl border border-white/10 max-w-6xl w-full shadow-2xl mt-10 mb-20 relative">
+         <div className="backdrop-blur-md bg-white/5 p-6 md:p-10 rounded-3xl border border-white/10 max-w-6xl w-full shadow-2xl mt-10 mb-20 relative transform-gpu">
              
              <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                <div className="text-left">
@@ -247,7 +249,7 @@ export default function Shop() {
                    whileHover={{ scale: 1.05 }}
                    whileTap={{ scale: 0.95 }}
                    onClick={() => setIsAddModalOpen(true)}
-                   className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-2.5 rounded-full font-bold transition-all shadow-[0_0_15px_rgba(34,211,238,0.3)]"
+                   className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-2.5 rounded-full font-bold transition-all shadow-[0_0_15px_rgba(34,211,238,0.3)] transform-gpu"
                  >
                    + Add Product
                  </motion.button>
@@ -255,7 +257,7 @@ export default function Shop() {
              </div>
 
              {productsList.length > 0 && (
-               <div className="sticky top-20 z-40 w-full flex flex-wrap justify-center md:justify-start gap-3 bg-black/50 backdrop-blur-lg py-4 px-6 rounded-2xl border border-white/10 mb-12 shadow-lg">
+               <div className="sticky top-20 z-40 w-full flex flex-wrap justify-center md:justify-start gap-3 bg-black/50 backdrop-blur-lg py-4 px-6 rounded-2xl border border-white/10 mb-12 shadow-lg transform-gpu">
                  {mainCategories.map(cat => (
                    <button
                      key={cat}
@@ -277,7 +279,7 @@ export default function Shop() {
              )}
              
              {isLoadingData ? (
-                <div className="flex flex-col items-center justify-center py-20 w-full">
+                <div className="flex flex-col items-center justify-center py-20 w-full transform-gpu">
                    <motion.div 
                      animate={{ rotate: 360 }} 
                      transition={{ repeat: Infinity, duration: 2, ease: "linear" }} 
@@ -291,7 +293,7 @@ export default function Shop() {
                    
                    <div className="flex flex-wrap justify-center md:justify-start gap-6 mt-12 opacity-40">
                      {[1, 2, 3, 4].map((n) => (
-                       <div key={n} className="bg-white/5 p-4 md:p-5 rounded-xl border border-white/5 w-64 h-80 animate-pulse flex flex-col">
+                       <div key={n} className="bg-white/5 p-4 md:p-5 rounded-xl border border-white/5 w-64 h-80 animate-pulse flex flex-col transform-gpu">
                          <div className="w-full h-48 bg-black/30 rounded-lg mb-4"></div>
                          <div className="h-5 bg-white/10 rounded w-3/4 mb-3"></div>
                          <div className="h-4 bg-white/10 rounded w-1/2 mb-auto"></div>
@@ -338,14 +340,14 @@ export default function Shop() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
+                className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 transform-gpu"
               >
                  <motion.div 
                    initial={{ scale: 0.8, opacity: 0, y: 50 }}
                    animate={{ scale: 1, opacity: 1, y: 0 }}
                    exit={{ scale: 0.8, opacity: 0, y: 50 }}
                    transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                   className="bg-[#050810]/90 border border-cyan-500/30 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-[0_0_40px_rgba(34,211,238,0.2)] relative text-left max-h-[90vh] overflow-y-auto custom-scrollbar"
+                   className="bg-[#050810]/90 border border-cyan-500/30 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-[0_0_40px_rgba(34,211,238,0.2)] relative text-left max-h-[90vh] overflow-y-auto custom-scrollbar transform-gpu will-change-transform"
                  >
                     <button onClick={() => setIsAddModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white rounded-full w-8 h-8 flex items-center justify-center">✕</button>
                     <h3 className="text-2xl font-bold text-cyan-400 mb-6">Add New Product</h3>
@@ -403,7 +405,7 @@ export default function Shop() {
 
                        <motion.button 
                          whileTap={{ scale: 0.95 }}
-                         type="submit" disabled={isUploading} className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 py-3 rounded-lg font-bold text-white mt-2">
+                         type="submit" disabled={isUploading} className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 py-3 rounded-lg font-bold text-white mt-2 transform-gpu">
                           {isUploading ? "Uploading..." : "Publish Product"}
                        </motion.button>
                     </form>
@@ -418,14 +420,14 @@ export default function Shop() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
+                className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 transform-gpu"
               >
                  <motion.div 
                    initial={{ scale: 0.8, opacity: 0, y: 50 }}
                    animate={{ scale: 1, opacity: 1, y: 0 }}
                    exit={{ scale: 0.8, opacity: 0, y: 50 }}
                    transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                   className="bg-[#050810]/90 border border-purple-500/30 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-[0_0_40px_rgba(168,85,247,0.2)] relative text-left max-h-[90vh] overflow-y-auto custom-scrollbar"
+                   className="bg-[#050810]/90 border border-purple-500/30 p-6 md:p-8 rounded-2xl w-full max-w-md shadow-[0_0_40px_rgba(168,85,247,0.2)] relative text-left max-h-[90vh] overflow-y-auto custom-scrollbar transform-gpu will-change-transform"
                  >
                     <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white rounded-full w-8 h-8 flex items-center justify-center">✕</button>
                     <h3 className="text-2xl font-bold text-purple-400 mb-1">Checkout</h3>
@@ -438,7 +440,7 @@ export default function Shop() {
                        <motion.div 
                          initial={{ opacity: 0, scale: 0.8 }}
                          animate={{ opacity: 1, scale: 1 }}
-                         className="text-center py-8"
+                         className="text-center py-8 transform-gpu"
                        >
                           <motion.div 
                             animate={{ y: [0, -20, 0] }}
@@ -466,9 +468,10 @@ export default function Shop() {
                                   whileTap={{ scale: 0.95 }}
                                   type="button" 
                                   onClick={() => { setPaymentMethod('bkash'); setCopied(false); }} 
-                                  className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all border flex items-center justify-center gap-2 ${paymentMethod === 'bkash' ? 'bg-[#E2136E]/10 text-[#E2136E] border-[#E2136E]' : 'bg-transparent text-gray-500 border-gray-700 hover:border-gray-500'}`}
+                                  className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all border flex items-center justify-center gap-2 transform-gpu ${paymentMethod === 'bkash' ? 'bg-[#E2136E]/10 text-[#E2136E] border-[#E2136E]' : 'bg-transparent text-gray-500 border-gray-700 hover:border-gray-500'}`}
                                 >
-                                  <img src="/bkash.png" alt="bKash" className="w-5 h-5 rounded-sm object-cover" />
+                                  {/* 🌟 ফিক্স: payment logo তে lazy loading 🌟 */}
+                                  <img src="/bkash.png" alt="bKash" loading="lazy" decoding="async" className="w-5 h-5 rounded-sm object-cover" />
                                   bKash
                                 </motion.button>
                                 
@@ -476,9 +479,9 @@ export default function Shop() {
                                   whileTap={{ scale: 0.95 }}
                                   type="button" 
                                   onClick={() => { setPaymentMethod('rocket'); setCopied(false); }} 
-                                  className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all border flex items-center justify-center gap-2 ${paymentMethod === 'rocket' ? 'bg-[#8C3494]/10 text-[#8C3494] border-[#8C3494]' : 'bg-transparent text-gray-500 border-gray-700 hover:border-gray-500'}`}
+                                  className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all border flex items-center justify-center gap-2 transform-gpu ${paymentMethod === 'rocket' ? 'bg-[#8C3494]/10 text-[#8C3494] border-[#8C3494]' : 'bg-transparent text-gray-500 border-gray-700 hover:border-gray-500'}`}
                                 >
-                                  <img src="/rocket.png" alt="Rocket" className="w-5 h-5 rounded-sm object-cover" />
+                                  <img src="/rocket.png" alt="Rocket" loading="lazy" decoding="async" className="w-5 h-5 rounded-sm object-cover" />
                                   Rocket
                                 </motion.button>
                              </div>
@@ -520,7 +523,7 @@ export default function Shop() {
                           
                           <motion.button 
                             whileTap={{ scale: 0.95 }}
-                            type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-purple-500 to-cyan-500 py-3.5 rounded-lg font-bold text-white mt-2 shadow-[0_0_15px_rgba(168,85,247,0.4)] hover:shadow-[0_0_25px_rgba(34,211,238,0.5)] transition-all"
+                            type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-purple-500 to-cyan-500 py-3.5 rounded-lg font-bold text-white mt-2 shadow-[0_0_15px_rgba(168,85,247,0.4)] hover:shadow-[0_0_25px_rgba(34,211,238,0.5)] transition-all transform-gpu"
                           >
                              {isLoading ? "Processing..." : "Confirm Order"}
                           </motion.button>

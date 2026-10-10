@@ -9,7 +9,7 @@ export default function Gallery() {
   const router = useRouter();
 
   const [photos, setPhotos] = useState([]);
-  const [isLoadingData, setIsLoadingData] = useState(true); // 🌟 নতুন স্টেট: ডাটা লোডিং ট্র্যাক করার জন্য
+  const [isLoadingData, setIsLoadingData] = useState(true); 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   
@@ -21,7 +21,7 @@ export default function Gallery() {
   const [selectedPhoto, setSelectedPhoto] = useState<any>(null); 
 
   const fetchPhotos = async () => {
-    setIsLoadingData(true); // 🌟 ফেচ শুরু হলে লোডিং true
+    setIsLoadingData(true); 
     try {
       const res = await fetch('/api/gallery');
       const data = await res.json();
@@ -29,7 +29,7 @@ export default function Gallery() {
     } catch (error) {
       console.log(error);
     } finally {
-      setIsLoadingData(false); // 🌟 ফেচ শেষ হলে লোডিং false
+      setIsLoadingData(false); 
     }
   };
 
@@ -107,11 +107,12 @@ export default function Gallery() {
 
   return (
     <main className="flex flex-col items-center pt-32 px-4 min-h-screen">
+      {/* 🌟 ফিক্স: transform-gpu যুক্ত করা হয়েছে 🌟 */}
       <motion.div 
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
-        className="backdrop-blur-md bg-[#050810]/80 p-6 md:p-10 rounded-3xl border border-white/10 w-full max-w-7xl shadow-2xl mt-10 mb-20 relative"
+        className="backdrop-blur-md bg-[#050810]/80 p-6 md:p-10 rounded-3xl border border-white/10 w-full max-w-7xl shadow-2xl mt-10 mb-20 relative transform-gpu"
       >
         
         <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4 text-center md:text-left">
@@ -123,7 +124,7 @@ export default function Gallery() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => session ? setShowForm(!showForm) : router.push("/login")}
-            className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-2.5 rounded-full font-bold transition-all shadow-[0_0_15px_rgba(34,211,238,0.3)]"
+            className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-2.5 rounded-full font-bold transition-all shadow-[0_0_15px_rgba(34,211,238,0.3)] transform-gpu"
           >
             {showForm ? "Cancel Upload" : "Upload Photo 🚀"}
           </motion.button>
@@ -137,22 +138,21 @@ export default function Gallery() {
               exit={{ opacity: 0, height: 0, scale: 0.95 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
               onSubmit={handleUpload} 
-              className="bg-black/50 p-6 rounded-2xl border border-cyan-500/30 mb-10 max-w-2xl mx-auto shadow-lg flex flex-col gap-4 overflow-hidden"
+              className="bg-black/50 p-6 rounded-2xl border border-cyan-500/30 mb-10 max-w-2xl mx-auto shadow-lg flex flex-col gap-4 overflow-hidden transform-gpu will-change-transform"
             >
               <input required type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Photo Title (e.g. Orion Nebula)" className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-cyan-500 focus:outline-none" />
               <textarea required value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Camera details, location, or description..." className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-cyan-500 focus:outline-none h-24 resize-none"></textarea>
               <input required type="file" accept="image/*" onChange={handleImageChange} className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-cyan-500/20 file:text-cyan-400 hover:file:bg-cyan-500/30 cursor-pointer" />
               {imagePreview && <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover rounded-lg border border-white/10" />}
-              <motion.button whileTap={{ scale: 0.95 }} type="submit" disabled={isUploading} className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 py-3 rounded-lg font-bold text-white mt-2 transition-all">
+              <motion.button whileTap={{ scale: 0.95 }} type="submit" disabled={isUploading} className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 py-3 rounded-lg font-bold text-white mt-2 transition-all transform-gpu">
                 {isUploading ? "Uploading to Space..." : "Publish to Gallery"}
               </motion.button>
             </motion.form>
           )}
         </AnimatePresence>
 
-        {/* 🌟 লোডিং অ্যানিমেশন ও স্কেলিটন 🌟 */}
         {isLoadingData ? (
-           <div className="flex flex-col items-center justify-center py-20 w-full">
+           <div className="flex flex-col items-center justify-center py-20 w-full transform-gpu">
               <motion.div 
                 animate={{ rotate: [0, 15, -15, 0] }} 
                 transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }} 
@@ -166,7 +166,7 @@ export default function Gallery() {
               
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-12 w-full opacity-40">
                 {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-                  <div key={n} className="bg-white/5 rounded-2xl border border-white/5 aspect-[4/5] animate-pulse"></div>
+                  <div key={n} className="bg-white/5 rounded-2xl border border-white/5 aspect-[4/5] animate-pulse transform-gpu"></div>
                 ))}
               </div>
            </div>
@@ -175,17 +175,19 @@ export default function Gallery() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {photos.map((photo: any, index: number) => (
+              // 🌟 ফিক্স: transform-gpu will-change-transform অ্যাড করা হয়েছে, viewport margin দেওয়া হয়েছে 🌟
               <motion.div 
                 key={photo._id} 
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-20px" }}
+                viewport={{ once: true, margin: "50px" }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
                 whileHover={{ scale: 1.03 }}
                 onClick={() => handleViewPhoto(photo)}
-                className="group relative rounded-2xl overflow-hidden border border-white/10 bg-black/40 aspect-[4/5] shadow-lg flex flex-col cursor-pointer transition-transform"
+                className="group relative rounded-2xl overflow-hidden border border-white/10 bg-black/40 aspect-[4/5] shadow-lg flex flex-col cursor-pointer transition-transform transform-gpu will-change-transform"
               >
-                <img src={photo.image} alt={photo.title} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
+                {/* 🌟 ফিক্স: loading="lazy" decoding="async" দেওয়া হয়েছে 🌟 */}
+                <img src={photo.image} alt={photo.title} loading="lazy" decoding="async" className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
                 
                 <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-cyan-400 flex items-center gap-1 border border-cyan-500/30">
                   👁️ {photo.views || 0}
@@ -195,7 +197,7 @@ export default function Gallery() {
                   <h4 className="text-cyan-300 font-bold text-lg truncate">{photo.title}</h4>
                   <div className="flex items-center gap-2 mt-1">
                     <div className="w-5 h-5 rounded-full bg-gray-700 overflow-hidden border border-white/20">
-                      {photo.userImage ? <img src={photo.userImage} alt="User" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-[10px] font-bold">{photo.userName.charAt(0)}</div>}
+                      {photo.userImage ? <img src={photo.userImage} alt="User" loading="lazy" decoding="async" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-[10px] font-bold">{photo.userName.charAt(0)}</div>}
                     </div>
                     <p className="text-xs text-gray-300 truncate">{photo.userName}</p>
                   </div>
@@ -211,25 +213,25 @@ export default function Gallery() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-sm p-4"
+              className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-sm p-4 transform-gpu"
             >
               <motion.div 
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="relative max-w-4xl w-full bg-[#050810] border border-cyan-500/30 rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(34,211,238,0.2)] flex flex-col md:flex-row max-h-[90vh]"
+                className="relative max-w-4xl w-full bg-[#050810] border border-cyan-500/30 rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(34,211,238,0.2)] flex flex-col md:flex-row max-h-[90vh] transform-gpu will-change-transform"
               >
                 <button onClick={() => setSelectedPhoto(null)} className="absolute top-4 right-4 z-10 bg-black/50 hover:bg-red-500 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors">✕</button>
                 
                 <div className="w-full md:w-2/3 bg-black flex items-center justify-center p-2">
-                  <img src={selectedPhoto.image} alt={selectedPhoto.title} className="max-w-full max-h-[60vh] md:max-h-[90vh] object-contain rounded-lg" />
+                  <img src={selectedPhoto.image} alt={selectedPhoto.title} loading="lazy" decoding="async" className="max-w-full max-h-[60vh] md:max-h-[90vh] object-contain rounded-lg" />
                 </div>
                 
                 <div className="w-full md:w-1/3 p-6 md:p-8 flex flex-col justify-center overflow-y-auto bg-gradient-to-b from-[#050810] to-black">
                   <div className="flex items-center gap-3 mb-6 pb-6 border-b border-white/10">
                     <div className="w-12 h-12 rounded-full bg-gray-700 overflow-hidden border-2 border-cyan-500/50">
-                      {selectedPhoto.userImage ? <img src={selectedPhoto.userImage} alt="User" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-lg font-bold">{selectedPhoto.userName.charAt(0)}</div>}
+                      {selectedPhoto.userImage ? <img src={selectedPhoto.userImage} alt="User" loading="lazy" decoding="async" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-lg font-bold">{selectedPhoto.userName.charAt(0)}</div>}
                     </div>
                     <div>
                       <h3 className="font-bold text-white text-lg">{selectedPhoto.userName}</h3>

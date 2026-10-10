@@ -21,7 +21,7 @@ export default function AdminDashboard() {
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center text-purple-400 font-bold text-xl">
+      <div className="min-h-screen flex items-center justify-center text-purple-400 font-bold text-xl transform-gpu">
         <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }} className="mr-3 text-3xl">
           🛰️
         </motion.div>
@@ -37,12 +37,12 @@ export default function AdminDashboard() {
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: "spring", stiffness: 300, damping: 15 }}
-          className="bg-red-500/10 border border-red-500/50 p-8 md:p-12 rounded-3xl max-w-md w-full shadow-[0_0_40px_rgba(239,68,68,0.2)]"
+          className="bg-red-500/10 border border-red-500/50 p-8 md:p-12 rounded-3xl max-w-md w-full shadow-[0_0_40px_rgba(239,68,68,0.2)] transform-gpu will-change-transform"
         >
           <motion.div 
             animate={{ rotate: [-10, 10, -10, 10, 0] }}
             transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-            className="text-6xl mb-4"
+            className="text-6xl mb-4 transform-gpu"
           >
             ⛔
           </motion.div>
@@ -52,7 +52,7 @@ export default function AdminDashboard() {
             whileHover={{ scale: 1.05, boxShadow: "0px 0px 15px rgba(239,68,68,0.5)" }}
             whileTap={{ scale: 0.95 }}
             onClick={() => router.push('/')} 
-            className="bg-red-500 hover:bg-red-600 text-white px-8 py-2.5 rounded-full font-bold transition-colors"
+            className="bg-red-500 hover:bg-red-600 text-white px-8 py-2.5 rounded-full font-bold transition-colors transform-gpu"
           >
             Return to Base
           </motion.button>
@@ -72,7 +72,7 @@ export default function AdminDashboard() {
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
-        className="backdrop-blur-md bg-[#050810]/80 p-6 md:p-10 rounded-3xl border border-purple-500/30 w-full max-w-7xl shadow-[0_0_30px_rgba(168,85,247,0.15)] mt-10 mb-20"
+        className="backdrop-blur-md bg-[#050810]/80 p-6 md:p-10 rounded-3xl border border-purple-500/30 w-full max-w-7xl shadow-[0_0_30px_rgba(168,85,247,0.15)] mt-10 mb-20 transform-gpu will-change-transform"
       >
         
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-white/10 pb-6 gap-4 text-center md:text-left">
@@ -81,7 +81,7 @@ export default function AdminDashboard() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
-              className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400"
+              className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400 transform-gpu"
             >
               Admin Control Center
             </motion.h2>
@@ -89,7 +89,7 @@ export default function AdminDashboard() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="text-gray-400 text-sm mt-1"
+              className="text-gray-400 text-sm mt-1 transform-gpu"
             >
               Welcome back, Commander Arnab.
             </motion.p>
@@ -98,13 +98,13 @@ export default function AdminDashboard() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", delay: 0.4 }}
-            className="bg-purple-500/20 border border-purple-500/50 px-6 py-2.5 rounded-xl text-purple-300 font-bold shadow-lg"
+            className="bg-purple-500/20 border border-purple-500/50 px-6 py-2.5 rounded-xl text-purple-300 font-bold shadow-lg transform-gpu"
           >
             Total Orders: {orders.length}
           </motion.div>
         </div>
 
-        <div className="overflow-x-auto rounded-xl border border-white/10 bg-black/40">
+        <div className="overflow-x-auto rounded-xl border border-white/10 bg-black/40 transform-gpu">
           <table className="w-full text-left min-w-[800px]">
             <thead className="bg-white/5 text-cyan-400 text-sm uppercase tracking-wider">
               <tr>
@@ -126,7 +126,7 @@ export default function AdminDashboard() {
                   variants={tableRowVariants}
                   transition={{ type: "spring", stiffness: 300, damping: 24 }}
                   key={order._id} 
-                  className="hover:bg-white/5 transition-colors group cursor-default"
+                  className="hover:bg-white/5 transition-colors group cursor-default transform-gpu"
                 >
                   <td className="p-4">
                     <p className="font-bold text-white text-base group-hover:text-cyan-300 transition-colors">{order.name}</p>
@@ -158,7 +158,7 @@ export default function AdminDashboard() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
-              className="text-center py-16 text-gray-500 font-medium"
+              className="text-center py-16 text-gray-500 font-medium transform-gpu"
             >
               No orders received yet. Stay tuned! 🛰️
             </motion.div>
