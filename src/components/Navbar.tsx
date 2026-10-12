@@ -35,7 +35,7 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 w-full z-50 p-3 md:p-4">
-      <div className="max-w-6xl mx-auto relative backdrop-blur-md md:backdrop-blur-xl bg-black/75 border border-white/20 rounded-2xl p-4 shadow-lg">
+      <div className="max-w-6xl mx-auto relative backdrop-blur-xl bg-black/60 border border-white/20 rounded-2xl p-4 shadow-lg">
         
         <div className="flex justify-between items-center w-full">
           <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 group">
@@ -108,7 +108,7 @@ export default function Navbar() {
                 initial="hidden"
                 animate="visible"
                 exit="exit"
-                className="md:hidden absolute top-[115%] left-0 w-full flex flex-col gap-2 p-5 bg-[#050810]/95 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl text-center text-sm font-medium text-gray-200 origin-top"
+                className="md:hidden absolute top-[115%] left-0 w-full flex flex-col gap-2 p-5 bg-[#050810]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl text-center text-sm font-medium text-gray-200 origin-top"
               >
                 <motion.div variants={itemVariants}>
                   <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 hover:text-cyan-400 bg-white/5 rounded-lg transition-colors">Home</Link>

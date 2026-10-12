@@ -27,7 +27,6 @@ export default function Home() {
     getSpaceNews();
   }, []);
 
-  // 🌟 60fps স্মুথ এবং হালকা অ্যানিমেশন ভেরিয়েন্ট 🌟
   const fadeUpVariant: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } }
@@ -44,12 +43,12 @@ export default function Home() {
   return (
     <main className="flex flex-col items-center justify-center min-h-screen px-4 text-center relative overflow-hidden">
       
-      {/* 🌟 Hero Section 🌟 */}
+      {/* 🌟 Hero Section (অরিজিনাল গ্লাসমরফিজম: backdrop-blur-xl bg-black/50) 🌟 */}
       <motion.div 
         initial="hidden"
         animate="visible"
         variants={fadeUpVariant}
-        className="mt-32 md:mt-40 max-w-4xl w-full z-10 backdrop-blur-md md:backdrop-blur-xl bg-black/60 border border-white/10 rounded-3xl p-8 md:p-14 shadow-2xl"
+        className="mt-32 md:mt-40 max-w-4xl w-full z-10 backdrop-blur-xl bg-black/50 border border-white/10 rounded-3xl p-8 md:p-14 shadow-2xl"
       >
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
@@ -116,7 +115,7 @@ export default function Home() {
         viewport={{ once: true, amount: 0.1 }}
         className="flex flex-col gap-6 max-w-6xl w-full mt-24 mb-16 z-10"
       >
-        <motion.div variants={fadeUpVariant} className="bg-gradient-to-b from-blue-900/20 to-black/60 backdrop-blur-md border border-blue-500/40 p-10 md:p-14 rounded-3xl hover:bg-black/70 transition-colors hover:border-blue-400 group shadow-[0_0_30px_rgba(59,130,246,0.15)] flex flex-col items-center text-center">
+        <motion.div variants={fadeUpVariant} className="bg-gradient-to-b from-blue-900/20 to-black/40 backdrop-blur-md border border-blue-500/40 p-10 md:p-14 rounded-3xl hover:bg-black/60 transition-colors hover:border-blue-400 group shadow-[0_0_30px_rgba(59,130,246,0.15)] flex flex-col items-center text-center">
           <motion.div whileHover={{ rotate: 8, scale: 1.15 }} className="text-5xl md:text-6xl mb-4 origin-center">👕</motion.div>
           <h3 className="text-3xl md:text-4xl font-extrabold text-blue-300 mb-2">Space Merch</h3>
           <p className="text-blue-400 font-bold text-lg md:text-xl mb-6 tracking-widest uppercase bg-blue-500/10 px-4 py-1.5 rounded-full border border-blue-500/20">
@@ -133,14 +132,14 @@ export default function Home() {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-          <motion.div variants={fadeUpVariant} className="bg-black/50 backdrop-blur-md border border-cyan-500/20 p-8 rounded-3xl hover:bg-black/60 transition-colors hover:border-cyan-500/50 group shadow-lg text-left">
+          <motion.div variants={fadeUpVariant} className="bg-black/40 backdrop-blur-md border border-cyan-500/20 p-8 rounded-3xl hover:bg-black/60 transition-colors hover:border-cyan-500/50 group shadow-lg text-left">
             <motion.div whileHover={{ scale: 1.15, rotate: -8 }} className="text-4xl mb-4 origin-left">❓</motion.div>
             <h3 className="text-2xl font-bold text-cyan-300 mb-3">Q&A Community</h3>
             <p className="text-gray-400 text-sm mb-6 leading-relaxed">Have questions about black holes or the multiverse? Ask experts and share your knowledge.</p>
             <Link href="/qa" className="text-cyan-400 font-semibold hover:text-cyan-300 flex items-center gap-2 group-hover:gap-3 transition-all">Ask a Question <span>→</span></Link>
           </motion.div>
           
-          <motion.div variants={fadeUpVariant} className="bg-black/50 backdrop-blur-md border border-purple-500/20 p-8 rounded-3xl hover:bg-black/60 transition-colors hover:border-purple-500/50 group shadow-lg text-left">
+          <motion.div variants={fadeUpVariant} className="bg-black/40 backdrop-blur-md border border-purple-500/20 p-8 rounded-3xl hover:bg-black/60 transition-colors hover:border-purple-500/50 group shadow-lg text-left">
             <motion.div whileHover={{ scale: 1.15, rotate: 8 }} className="text-4xl mb-4 origin-left">📸</motion.div>
             <h3 className="text-2xl font-bold text-purple-300 mb-3">Astrophotography</h3>
             <p className="text-gray-400 text-sm mb-6 leading-relaxed">Upload your stunning night sky captures and view shots taken by astronomers globally.</p>
@@ -187,11 +186,11 @@ export default function Home() {
                 href={article.url} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden hover:border-cyan-500/50 transition-colors group flex flex-col shadow-lg"
+                className="bg-black/50 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden hover:border-cyan-500/50 transition-colors group flex flex-col shadow-lg"
               >
                 <div className="h-48 w-full overflow-hidden relative bg-black/40">
-                  <img src={article.image_url} alt={article.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-85 group-hover:opacity-100" />
-                  <div className="absolute top-3 left-3 bg-black/70 border border-cyan-500/30 text-cyan-300 text-[10px] font-bold px-3 py-1 rounded-full uppercase">
+                  <img src={article.image_url} alt={article.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-80 group-hover:opacity-100" />
+                  <div className="absolute top-3 left-3 bg-cyan-500/20 backdrop-blur-md border border-cyan-500/30 text-cyan-300 text-[10px] font-bold px-3 py-1 rounded-full uppercase">
                     {article.news_site}
                   </div>
                 </div>
