@@ -93,26 +93,25 @@ export default function QA() {
 
   return (
     <main className="flex flex-col items-center pt-32 px-4 text-center min-h-screen">
-      {/* 🌟 ফিক্স: transform-gpu যুক্ত করা হয়েছে 🌟 */}
       <motion.div 
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
-        className="backdrop-blur-md bg-white/5 p-6 md:p-10 rounded-3xl border border-white/10 max-w-lg md:max-w-4xl w-full shadow-2xl mt-10 mb-20 transform-gpu"
+        transition={{ duration: 0.35, ease: "easeOut" }}
+        className="backdrop-blur-md bg-white/5 p-6 md:p-10 rounded-3xl border border-white/10 max-w-lg md:max-w-4xl w-full shadow-2xl mt-10 mb-20"
       >
         <h2 className="text-3xl md:text-4xl font-bold mb-4 text-cyan-300">Q&A Community</h2>
         <p className="text-sm md:text-base text-gray-300 mb-8">Ask your deep space questions or share your cosmic knowledge.</p>
 
-        <form onSubmit={handleSubmit} className="mb-10 text-left bg-black/40 p-6 rounded-2xl border border-cyan-500/30 shadow-lg transform-gpu">
+        <form onSubmit={handleSubmit} className="mb-10 text-left bg-black/40 p-6 rounded-2xl border border-cyan-500/30 shadow-lg">
           <h4 className="text-lg font-semibold text-cyan-400 mb-4">Ask a Question</h4>
           <input type="text" value={session?.user?.name || "Sign in to post"} disabled className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-gray-400 mb-4 cursor-not-allowed" />
           <textarea required value={questionText} onChange={(e) => setQuestionText(e.target.value)} placeholder="What do you want to know?" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500 h-24 resize-none transition-colors mb-4 focus:outline-none"></textarea>
           <motion.button 
             whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileTap={{ scale: 0.96 }}
             type="submit" 
             disabled={isLoading} 
-            className="bg-gradient-to-r from-cyan-500 to-blue-500 px-6 py-2.5 rounded-lg font-bold text-white transition-all disabled:opacity-50 transform-gpu" 
+            className="bg-gradient-to-r from-cyan-500 to-blue-500 px-6 py-2.5 rounded-lg font-bold text-white transition-all disabled:opacity-50" 
             onClick={(e) => {
               if (!session) {
                 e.preventDefault();
@@ -128,12 +127,12 @@ export default function QA() {
           <h4 className="text-xl font-semibold text-white mb-4 border-b border-white/10 pb-2">Community Discussions</h4>
           
           {isLoadingData ? (
-             <div className="flex flex-col items-center justify-center py-10 w-full transform-gpu">
-                <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 4, ease: "linear" }} className="text-4xl mb-4">📡</motion.div>
+             <div className="flex flex-col items-center justify-center py-10 w-full">
+                <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 3, ease: "linear" }} className="text-4xl mb-4">📡</motion.div>
                 <p className="text-cyan-400 font-bold animate-pulse text-sm tracking-widest mb-8">Receiving signals from community...</p>
                 <div className="w-full space-y-6 opacity-40">
                   {[1, 2, 3].map(n => (
-                    <div key={n} className="bg-white/5 p-5 rounded-xl border border-white/5 animate-pulse flex gap-3 transform-gpu">
+                    <div key={n} className="bg-white/5 p-5 rounded-xl border border-white/5 animate-pulse flex gap-3">
                        <div className="w-10 h-10 rounded-full bg-white/10 flex-shrink-0"></div>
                        <div className="flex-1 space-y-3 py-1">
                           <div className="h-4 bg-white/10 rounded w-3/4"></div>
@@ -147,14 +146,13 @@ export default function QA() {
              <p className="text-gray-400 py-6 text-center">No discussions yet. Be the first to ask!</p>
           ) : (
             questions.map((q: any, index: number) => (
-              // 🌟 ফিক্স: transform-gpu will-change-transform অ্যাড করা হয়েছে, viewport margin দেওয়া হয়েছে 🌟
               <motion.div 
                 key={q._id} 
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "50px" }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
-                className="bg-white/10 p-5 rounded-xl border border-white/10 shadow-md transform-gpu will-change-transform"
+                viewport={{ once: true, amount: 0.1 }}
+                transition={{ duration: 0.3, delay: (index % 3) * 0.04, ease: "easeOut" }}
+                className="bg-white/10 p-5 rounded-xl border border-white/10 shadow-md"
               >
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-10 h-10 rounded-full bg-gray-700 flex-shrink-0 overflow-hidden border border-cyan-500/50">
@@ -177,11 +175,11 @@ export default function QA() {
                     {q.answers.map((ans: any, i: number) => (
                       <motion.div 
                         key={i} 
-                        initial={{ opacity: 0, x: -10 }}
+                        initial={{ opacity: 0, x: -8 }}
                         whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true, margin: "20px" }}
-                        transition={{ duration: 0.3, delay: i * 0.1 }}
-                        className="bg-black/30 p-3 rounded-lg border border-white/5 transform-gpu will-change-transform"
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.25, ease: "easeOut" }}
+                        className="bg-black/30 p-3 rounded-lg border border-white/5"
                       >
                         <div className="flex items-center gap-2 mb-2">
                           <div className="w-6 h-6 rounded-full bg-gray-600 flex-shrink-0 overflow-hidden">
@@ -205,17 +203,17 @@ export default function QA() {
                   {replyingTo === q._id ? (
                     <motion.form 
                       key="reply-form"
-                      initial={{ opacity: 0, height: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, height: "auto", scale: 1 }}
-                      exit={{ opacity: 0, height: 0, scale: 0.95 }}
-                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2, ease: "easeOut" }}
                       onSubmit={(e) => handleReplySubmit(e, q._id)} 
-                      className="mt-4 bg-black/50 p-4 rounded-xl border border-white/10 flex flex-col gap-3 overflow-hidden transform-gpu will-change-transform"
+                      className="mt-4 bg-black/50 p-4 rounded-xl border border-white/10 flex flex-col gap-3 overflow-hidden"
                     >
                       <input type="text" value={session?.user?.name || "Sign in to reply"} disabled className="bg-transparent border-b border-white/20 pb-2 text-sm text-gray-400 cursor-not-allowed" />
                       <textarea required value={replyText} onChange={(e) => setReplyText(e.target.value)} placeholder="Write your answer..." className="bg-transparent border border-white/20 p-3 rounded-lg text-sm text-white h-20 resize-none focus:outline-none focus:border-cyan-500"></textarea>
                       <div className="flex gap-3 mt-1">
-                        <motion.button whileTap={{ scale: 0.95 }} type="submit" className="bg-cyan-500 hover:bg-cyan-600 text-black px-4 py-1.5 rounded-lg text-sm font-bold transition-colors transform-gpu">Submit Answer</motion.button>
+                        <motion.button whileTap={{ scale: 0.95 }} type="submit" className="bg-cyan-500 hover:bg-cyan-600 text-black px-4 py-1.5 rounded-lg text-sm font-bold transition-colors">Submit Answer</motion.button>
                         <button type="button" onClick={() => setReplyingTo(null)} className="text-gray-400 text-sm hover:text-white transition-colors">Cancel</button>
                       </div>
                     </motion.form>
@@ -225,6 +223,7 @@ export default function QA() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
+                      transition={{ duration: 0.15 }}
                       onClick={() => {
                         if (!session) {
                           router.push("/login");
@@ -232,7 +231,7 @@ export default function QA() {
                         }
                         setReplyingTo(q._id);
                       }} 
-                      className="text-sm text-cyan-400 mt-4 ml-12 hover:text-cyan-300 transition-colors font-medium flex items-center gap-1 transform-gpu"
+                      className="text-sm text-cyan-400 mt-4 ml-12 hover:text-cyan-300 transition-colors font-medium flex items-center gap-1"
                     >
                       ✎ Write an Answer
                     </motion.button>

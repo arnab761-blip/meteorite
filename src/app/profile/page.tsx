@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 
 export default function Profile() {
   const { data: session, status } = useSession();
@@ -29,7 +29,7 @@ export default function Profile() {
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center text-cyan-400 font-bold text-xl transform-gpu">
+      <div className="min-h-screen flex items-center justify-center text-cyan-400 font-bold text-xl">
         <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }} className="mr-3 text-3xl">
           🚀
         </motion.div>
@@ -43,28 +43,27 @@ export default function Profile() {
     return null; 
   }
 
-  const tabVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
-    exit: { opacity: 0, x: 20, transition: { duration: 0.3 } }
+  const tabVariants: Variants = {
+    hidden: { opacity: 0, x: -15 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.25, ease: "easeOut" } },
+    exit: { opacity: 0, x: 15, transition: { duration: 0.2, ease: "easeIn" } }
   };
 
   return (
     <main className="flex flex-col items-center pt-32 px-4 min-h-screen">
-      {/* 🌟 ফিক্স: transform-gpu will-change-transform */}
       <motion.div 
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
-        className="backdrop-blur-md bg-[#050810]/80 p-6 md:p-10 rounded-3xl border border-white/10 max-w-5xl w-full shadow-2xl mt-10 mb-20 transform-gpu will-change-transform"
+        transition={{ duration: 0.35, ease: "easeOut" }}
+        className="backdrop-blur-md bg-[#050810]/85 p-6 md:p-10 rounded-3xl border border-white/10 max-w-5xl w-full shadow-2xl mt-10 mb-20"
       >
         
         <div className="flex flex-col items-center gap-4 mb-10 border-b border-white/10 pb-8">
           <motion.div 
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 200, damping: 15 }}
-            className="w-24 h-24 rounded-full bg-gray-700 overflow-hidden border-2 border-cyan-500/50 shadow-[0_0_15px_rgba(34,211,238,0.3)] transform-gpu"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="w-24 h-24 rounded-full bg-gray-700 overflow-hidden border-2 border-cyan-500/50 shadow-[0_0_15px_rgba(34,211,238,0.3)]"
           >
             {session.user?.image ? (
               <img src={session.user.image} alt="Profile" loading="lazy" decoding="async" className="w-full h-full object-cover" />
@@ -76,18 +75,18 @@ export default function Profile() {
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-center transform-gpu"
+            transition={{ delay: 0.1, duration: 0.3 }}
+            className="text-center"
           >
             <h3 className="text-2xl font-bold text-white">{session.user?.name}</h3>
             <p className="text-sm text-cyan-400 mt-1">{session.user?.email}</p>
           </motion.div>
           
           <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
             onClick={() => signOut({ callbackUrl: '/' })} 
-            className="bg-red-500/20 hover:bg-red-500/40 text-red-400 border border-red-500/50 px-6 py-2 rounded-full text-sm font-bold mt-2 transform-gpu"
+            className="bg-red-500/20 hover:bg-red-500/40 text-red-400 border border-red-500/50 px-6 py-2 rounded-full text-sm font-bold mt-2 transition-colors"
           >
             Sign Out
           </motion.button>
@@ -95,25 +94,25 @@ export default function Profile() {
 
         <div className="flex justify-center gap-4 mb-8">
           <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
             onClick={() => setActiveTab("orders")} 
-            className={`px-6 py-2 rounded-full font-bold transition-all transform-gpu ${activeTab === "orders" ? "bg-cyan-500 text-white shadow-[0_0_15px_rgba(34,211,238,0.4)]" : "bg-white/5 text-gray-400 hover:text-white"}`}
+            className={`px-6 py-2 rounded-full font-bold transition-colors ${activeTab === "orders" ? "bg-cyan-500 text-white shadow-[0_0_15px_rgba(34,211,238,0.4)]" : "bg-white/5 text-gray-400 hover:text-white"}`}
           >
             My Orders
           </motion.button>
           
           <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
             onClick={() => setActiveTab("photos")} 
-            className={`px-6 py-2 rounded-full font-bold transition-all transform-gpu ${activeTab === "photos" ? "bg-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)]" : "bg-white/5 text-gray-400 hover:text-white"}`}
+            className={`px-6 py-2 rounded-full font-bold transition-colors ${activeTab === "photos" ? "bg-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)]" : "bg-white/5 text-gray-400 hover:text-white"}`}
           >
             My Uploads
           </motion.button>
         </div>
 
-        <div className="min-h-[300px] transform-gpu">
+        <div className="min-h-[300px]">
           <AnimatePresence mode="wait">
             {activeTab === "orders" && (
               <motion.div 
@@ -122,7 +121,7 @@ export default function Profile() {
                 initial="hidden"
                 animate="visible"
                 exit="exit"
-                className="space-y-4 transform-gpu will-change-transform"
+                className="space-y-4"
               >
                 {orders.length === 0 ? (
                   <p className="text-center text-gray-500 py-10">You haven't ordered anything yet.</p>
@@ -130,10 +129,10 @@ export default function Profile() {
                   orders.map((order: any, index: number) => (
                     <motion.div 
                       key={order._id} 
-                      initial={{ opacity: 0, y: 20 }}
+                      initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="bg-black/40 p-5 rounded-xl border border-cyan-500/20 flex flex-col md:flex-row justify-between gap-4 transform-gpu"
+                      transition={{ duration: 0.25, delay: (index % 4) * 0.04, ease: "easeOut" }}
+                      className="bg-black/40 p-5 rounded-xl border border-cyan-500/20 flex flex-col md:flex-row justify-between gap-4"
                     >
                       <div>
                         <h4 className="font-bold text-cyan-300">{order.productName}</h4>
@@ -156,7 +155,7 @@ export default function Profile() {
                 initial="hidden"
                 animate="visible"
                 exit="exit"
-                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 transform-gpu will-change-transform"
+                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"
               >
                 {photos.length === 0 ? (
                   <p className="text-center text-gray-500 py-10 col-span-full">You haven't uploaded any photos yet.</p>
@@ -164,11 +163,11 @@ export default function Profile() {
                   photos.map((photo: any, index: number) => (
                     <motion.div 
                       key={photo._id} 
-                      initial={{ opacity: 0, scale: 0.9 }}
+                      initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: index * 0.1 }}
-                      whileHover={{ scale: 1.03 }}
-                      className="bg-black/40 rounded-xl overflow-hidden border border-purple-500/20 transition-transform transform-gpu"
+                      transition={{ duration: 0.25, delay: (index % 3) * 0.04, ease: "easeOut" }}
+                      whileHover={{ scale: 1.02 }}
+                      className="bg-black/40 rounded-xl overflow-hidden border border-purple-500/20"
                     >
                       <img src={photo.image} alt={photo.title} loading="lazy" decoding="async" className="w-full h-48 object-cover" />
                       <div className="p-4">

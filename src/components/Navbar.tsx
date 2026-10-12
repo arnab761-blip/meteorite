@@ -2,41 +2,40 @@
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
-import { motion, AnimatePresence, Variants } from "framer-motion"; // 🌟 Variants ইমপোর্ট করা হলো
+import { motion, AnimatePresence, Variants } from "framer-motion";
 
 export default function Navbar() {
   const { data: session } = useSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // 🌟 TypeScript এরর ফিক্স করার জন্য Variants টাইপ অ্যাড করা হলো 🌟
   const menuVariants: Variants = {
-    hidden: { opacity: 0, y: -20, scale: 0.95 },
+    hidden: { opacity: 0, y: -12, scale: 0.98 },
     visible: { 
       opacity: 1, 
       y: 0, 
       scale: 1,
       transition: { 
-        duration: 0.3, 
+        duration: 0.2, 
         ease: "easeOut",
-        staggerChildren: 0.1
+        staggerChildren: 0.04
       } 
     },
     exit: { 
       opacity: 0, 
-      y: -20, 
-      scale: 0.95, 
-      transition: { duration: 0.2, ease: "easeIn" } 
+      y: -12, 
+      scale: 0.98, 
+      transition: { duration: 0.15, ease: "easeIn" } 
     }
   };
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, x: -10 },
-    visible: { opacity: 1, x: 0 }
+    hidden: { opacity: 0, x: -8 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.2, ease: "easeOut" } }
   };
 
   return (
     <nav className="fixed top-0 w-full z-50 p-3 md:p-4">
-      <div className="max-w-6xl mx-auto relative backdrop-blur-xl bg-black/60 border border-white/20 rounded-2xl p-4 shadow-lg">
+      <div className="max-w-6xl mx-auto relative backdrop-blur-md md:backdrop-blur-xl bg-black/75 border border-white/20 rounded-2xl p-4 shadow-lg">
         
         <div className="flex justify-between items-center w-full">
           <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 group">
@@ -50,14 +49,14 @@ export default function Navbar() {
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="md:hidden text-white text-xl w-10 h-10 flex items-center justify-center rounded-lg bg-white/5 border border-white/10 cursor-pointer active:bg-white/10 select-none transition-colors"
           >
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="wait" initial={false}>
               {isMobileMenuOpen ? (
                 <motion.span 
                   key="close" 
                   initial={{ rotate: -90, opacity: 0 }} 
                   animate={{ rotate: 0, opacity: 1 }} 
                   exit={{ rotate: 90, opacity: 0 }} 
-                  transition={{ duration: 0.2 }}
+                  transition={{ duration: 0.15 }}
                 >
                   ✕
                 </motion.span>
@@ -67,7 +66,7 @@ export default function Navbar() {
                   initial={{ rotate: 90, opacity: 0 }} 
                   animate={{ rotate: 0, opacity: 1 }} 
                   exit={{ rotate: -90, opacity: 0 }} 
-                  transition={{ duration: 0.2 }}
+                  transition={{ duration: 0.15 }}
                 >
                   ☰
                 </motion.span>
@@ -109,7 +108,7 @@ export default function Navbar() {
                 initial="hidden"
                 animate="visible"
                 exit="exit"
-                className="md:hidden absolute top-[115%] left-0 w-full flex flex-col gap-2 p-5 bg-[#050810]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl text-center text-sm font-medium text-gray-200 origin-top"
+                className="md:hidden absolute top-[115%] left-0 w-full flex flex-col gap-2 p-5 bg-[#050810]/95 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl text-center text-sm font-medium text-gray-200 origin-top"
               >
                 <motion.div variants={itemVariants}>
                   <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="block py-2 hover:text-cyan-400 bg-white/5 rounded-lg transition-colors">Home</Link>
